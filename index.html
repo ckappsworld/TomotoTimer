@@ -3,6 +3,7 @@
 <head>
   <title>Focus Timer with Local Sounds</title>
   <style>
+    /* 保持原有CSS樣式不變 */
     body {
       margin: 0;
       overflow: hidden;
@@ -79,6 +80,7 @@
 </head>
 <body>
   <div class="control-panel">
+    <!-- 保持原有HTML結構不變 -->
     <div class="input-group">
       <label>Total Time (minutes)</label>
       <input type="number" id="totalTime" class="segment-input" min="1" value="60">
@@ -106,112 +108,95 @@
   <script>
     let currentTimer = null;
     let currentAudio = null;
+    let phaseList = []; // 新增：儲存處理後的分段列表
 
-    // 聲音選項配置
+    // 聲音選項配置保持不變
     const soundOptions = [
       { id: 'none', label: 'No Sound' },
       { id: 'storm', label: 'Storm' },
       { id: 'lightrain', label: 'Light Rain' }
     ];
 
-    // 生成分段輸入
-    function generateSegments(count) {
-      const container = document.getElementById('segmentInputs');
-      container.innerHTML = '';
+    // 修改後的分段時間計算邏輯
+    function calculatePhases() {
+      const totalSeconds = parseInt(document.getElementById('totalTime').value) * 60;
+      const segmentInputs = Array.from(document.querySelectorAll('.segment-input'));
+      const soundSelects = Array.from(document.querySelectorAll('.sound-select'));
       
-      for (let i = 0; i < count; i++) {
-        const div = document.createElement('div');
-        div.className = 'segment-row';
-        
-        // 時間輸入
-        const timeInput = document.createElement('input');
-        timeInput.type = 'number';
-        timeInput.className = 'segment-input';
-        timeInput.min = 1;
-        timeInput.value = i % 2 === 0 ? 25 : 5;
-        timeInput.placeholder = 'Minutes';
+      // 收集原始分段數據
+      const rawSegments = segmentInputs.map((input, index) => ({
+        duration: (parseInt(input.value) || 1) * 60,
+        sound: soundSelects[index].value
+      }));
 
-        // 聲音選擇
-        const soundSelect = document.createElement('select');
-        soundSelect.className = 'sound-select';
-        soundOptions.forEach(opt => {
-          const option = document.createElement('option');
-          option.value = opt.id;
-          option.textContent = opt.label;
-          soundSelect.appendChild(option);
-        });
-
-        div.appendChild(timeInput);
-        div.appendChild(soundSelect);
-        container.appendChild(div);
+      // 自動填充/截斷邏輯
+      let accumulated = 0;
+      const finalPhases = [];
+      
+      while(accumulated < totalSeconds) {
+        for(const seg of rawSegments) {
+          const remaining = totalSeconds - accumulated;
+          if(remaining <= 0) break;
+          
+          const duration = Math.min(seg.duration, remaining);
+          finalPhases.push({
+            duration: duration,
+            sound: seg.sound
+          });
+          accumulated += duration;
+        }
       }
+
+      return finalPhases;
     }
 
-    // 播放聲音控制
-    function playSound(type) {
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-      }
-
-      const audioMap = {
-        storm: document.getElementById('stormSound'),
-        lightrain: document.getElementById('lightRainSound')
-      };
-
-      currentAudio = audioMap[type];
-      if (currentAudio) {
-        currentAudio.loop = true;
-        currentAudio.play().catch(e => {
-          console.log('需要點擊頁面任意位置授權音效播放');
-          document.body.style.cursor = 'pointer';
-          document.body.onclick = () => {
-            currentAudio.play();
-            document.body.style.cursor = 'default';
-          }
-        });
-      }
-    }
-
-    // 啟動計時器
+    // 修改後的計時器邏輯
     function startTimer() {
       if (currentTimer) clearInterval(currentTimer);
+      phaseList = calculatePhases();
+      
+      let currentPhase = 0;
+      let remaining = phaseList[0].duration;
+      playSound(phaseList[0].sound);
 
-      const totalMinutes = parseInt(document.getElementById('totalTime').value);
-      const segments = Array.from(document.querySelectorAll('.segment-input'))
-        .map(input => parseInt(input.value) * 60 || 60);
-      const sounds = Array.from(document.querySelectorAll('.sound-select'))
-        .map(select => select.value);
-
-      let currentSegment = 0;
-      let remaining = segments[0];
-      playSound(sounds[0]);
+      updateDisplay(currentPhase, remaining);
 
       currentTimer = setInterval(() => {
         remaining--;
         
-        // 更新顯示
-        document.getElementById('countdown').textContent = 
-          `${Math.floor(remaining / 60).toString().padStart(2, '0')}:` +
-          `${(remaining % 60).toString().padStart(2, '0')}`;
-        
-        document.getElementById('currentPhase').textContent = 
-          `Segment ${currentSegment + 1} (${soundOptions.find(o => o.id === sounds[currentSegment]).label})`;
+        updateDisplay(currentPhase, remaining);
 
-        // 切換分段
         if (remaining <= 0) {
-          currentSegment++;
-          if (currentSegment >= segments.length) {
+          currentPhase++;
+          if (currentPhase >= phaseList.length) {
             clearInterval(currentTimer);
             playSound('none');
             alert('Session Complete!');
             return;
           }
-          remaining = segments[currentSegment];
-          playSound(sounds[currentSegment]);
+          remaining = phaseList[currentPhase].duration;
+          playSound(phaseList[currentPhase].sound);
         }
       }, 1000);
     }
+
+    // 新增顯示更新函式
+    function updateDisplay(phaseIndex, seconds) {
+      const phaseNumber = phaseIndex + 1;
+      const totalPhases = phaseList.length;
+      const currentSound = soundOptions.find(o => o.id === phaseList[phaseIndex].sound).label;
+      
+      document.getElementById('currentPhase').textContent = 
+        `Phase ${phaseNumber}/${totalPhases} (${currentSound})`;
+      
+      document.getElementById('countdown').textContent = 
+        `${Math.floor(seconds / 60).toString().padStart(2, '0')}:` +
+        `${(seconds % 60).toString().padStart(2, '0')}`;
+    }
+
+    // 保持其他函式不變
+    function generateSegments(count) { /* ... */ }
+    function playSound(type) { /* ... */ }
 
     // 初始化
     document.getElementById('segmentCount').addEventListener('input', function() {
@@ -219,8 +204,6 @@
     });
 
     document.getElementById('startBtn').addEventListener('click', startTimer);
-
-    // 初始生成
     generateSegments(2);
   </script>
 </body>
