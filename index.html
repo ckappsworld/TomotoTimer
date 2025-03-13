@@ -2,126 +2,119 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Focus Timer - Local Test Version</title>
+  <title>3D Focus Timer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
   <style>
-    /* 基础样式重置 */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
+      margin: 0;
+      overflow: hidden;
       font-family: Arial, sans-serif;
-      background: #f0f0f0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
-    /* 控制面板样式 */
+    #canvas3d {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
     .control-panel {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 500px;
-      margin: 2rem;
-    }
-
-    .input-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .input-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: #333;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      z-index: 1;
     }
 
     .segment-row {
       display: flex;
-      gap: 1rem;
-      margin: 1rem 0;
+      gap: 10px;
+      margin: 10px 0;
       align-items: center;
     }
 
-    .segment-input,
+    .segment-label {
+      min-width: 60px;
+      font-weight: bold;
+    }
+
+    .segment-input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .unit-label {
+      margin-left: 5px;
+      color: #666;
+    }
+
     .sound-select {
       flex: 1;
-      padding: 0.8rem;
+      padding: 8px;
       border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 1rem;
+      border-radius: 4px;
     }
 
     #startBtn {
       width: 100%;
-      padding: 1rem;
+      padding: 12px;
       background: #4CAF50;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 1.1rem;
-      transition: background 0.3s;
-    }
-
-    #startBtn:hover {
-      background: #45a049;
+      margin-top: 15px;
     }
 
     .timer-display {
       text-align: center;
-      margin-top: 2rem;
-    }
-
-    #currentPhase {
-      font-size: 1.2rem;
-      color: #333;
-      margin-bottom: 0.5rem;
+      margin-top: 20px;
     }
 
     #countdown {
       font-family: monospace;
-      font-size: 2.5rem;
-      color: #222;
-      font-weight: bold;
+      font-size: 2em;
     }
 
-    .debug-info {
+    .scene-toggle {
       position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(0,0,0,0.8);
-      color: white;
-      padding: 1rem;
-      border-radius: 6px;
-      font-family: monospace;
-      max-width: 300px;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 2;
     }
   </style>
 </head>
 <body>
-  <!-- 控制面板 -->
+  <canvas id="canvas3d"></canvas>
+  <button class="scene-toggle" id="sceneToggle">🌲 Forest</button>
+
   <div class="control-panel">
     <div class="input-group">
-      <label for="totalTime">Total Time (minutes)</label>
+      <label>Total Time (minutes)</label>
       <input type="number" id="totalTime" class="segment-input" min="1" value="60">
     </div>
 
     <div class="input-group">
-      <label for="segmentCount">Number of Segments</label>
+      <label>Number of Segments</label>
       <input type="number" id="segmentCount" class="segment-input" min="1" value="2">
     </div>
 
     <div id="segmentInputs"></div>
 
-    <button id="startBtn" class="start-button">Start Focus Session</button>
+    <button id="startBtn">Start Focus Session</button>
 
     <div class="timer-display">
       <div id="currentPhase">Ready</div>
@@ -129,68 +122,60 @@
     </div>
   </div>
 
-  <!-- 调试信息 -->
-  <div class="debug-info" id="debugConsole"></div>
-
   <script>
-    // 调试系统
-    const debug = {
-      log: (...args) => {
-        const consoleDiv = document.getElementById('debugConsole');
-        consoleDiv.innerHTML += `<div>${args.join(' ')}</div>`;
-        console.log(...args);
+    // 多语言配置
+    const i18n = {
+      'en': {
+        segment: 'Segment',
+        unit: 'min',
+        phase: ['Phase', 'of']
       },
-      clear: () => {
-        document.getElementById('debugConsole').innerHTML = '';
+      'zh-TW': {
+        segment: '第',
+        unit: '分鐘',
+        phase: ['階段', '/']
       }
     };
 
-    // 初始化日志
-    debug.log('System Initializing...');
+    // 获取浏览器语言
+    const getLanguage = () => navigator.language.startsWith('zh') ? 'zh-TW' : 'en';
+    const lang = getLanguage();
 
-    // 音频管理器
-    class AudioManager {
-      constructor() {
-        debug.log('Initializing Audio Manager...');
-        this.sounds = {
-          storm: this.loadSound('storm01.mp3'),
-          lightrain: this.loadSound('lightrain01.mp3'),
-          none: { play: () => {}, stop: () => {} }
-        };
-      }
-
-      loadSound(filename) {
-        debug.log(`Loading sound: ${filename}`);
-        return new Howl({
-          src: [`sounds/${filename}`],
-          html5: true,
-          format: ['mp3'],
-          loop: true,
-          onloaderror: (id, err) => {
-            debug.log(`Sound load error: ${filename}`, err);
-          }
-        });
-      }
-
-      play(type) {
-        debug.log(`Playing sound: ${type}`);
-        this.stop();
-        if(this.sounds[type]) {
-          this.sounds[type].play();
-        }
-      }
-
-      stop() {
-        Object.values(this.sounds).forEach(sound => {
-          if(sound.stop) sound.stop();
-        });
-      }
+    // 3D场景初始化
+    let scene, camera, renderer, currentScene = 'city';
+    function initThreeScene() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d') });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      createScene(currentScene);
     }
 
+    // 音效管理器
+    const soundManager = {
+      currentSound: null,
+      sounds: {
+        storm: new Howl({ src: ['sounds/storm01.mp3'], loop: true }),
+        lightrain: new Howl({ src: ['sounds/lightrain01.mp3'], loop: true }),
+        none: { play: () => {}, stop: () => {} }
+      },
+      play(type) {
+        this.stop();
+        if(this.sounds[type]) {
+          this.currentSound = this.sounds[type];
+          this.currentSound.play();
+        }
+      },
+      stop() {
+        if(this.currentSound && this.currentSound.stop) {
+          this.currentSound.stop();
+        }
+      }
+    };
+
     // 计时器核心
-    class FocusTimer {
-      constructor(audioManager) {
-        this.audio = audioManager;
+    class Timer {
+      constructor() {
         this.phases = [];
         this.currentPhase = 0;
         this.remaining = 0;
@@ -198,123 +183,125 @@
       }
 
       start(phases) {
-        debug.log('Starting timer...');
         this.stop();
         this.phases = phases;
-        
-        if(this.phases.length === 0) {
-          debug.log('Error: Empty phase list');
-          return;
-        }
+        if(this.phases.length === 0) return;
 
         this.currentPhase = 0;
         this.remaining = this.phases[0].duration;
-        this.updateDisplay();
-        this.audio.play(this.phases[0].sound);
-
-        this.interval = setInterval(() => this.tick(), 1000);
-      }
-
-      tick() {
-        this.remaining--;
+        soundManager.play(this.phases[0].sound);
         this.updateDisplay();
 
-        if(this.remaining <= 0) {
-          this.currentPhase++;
-          if(this.currentPhase >= this.phases.length) {
-            this.stop();
-            debug.log('Timer completed');
-            alert('Session Complete!');
-            return;
-          }
+        this.interval = setInterval(() => {
+          this.remaining--;
+          this.updateDisplay();
           
-          this.remaining = this.phases[this.currentPhase].duration;
-          this.audio.play(this.phases[this.currentPhase].sound);
-        }
+          if(this.remaining <= 0) {
+            this.currentPhase++;
+            if(this.currentPhase >= this.phases.length) {
+              this.stop();
+              alert('Session Complete!');
+              return;
+            }
+            this.remaining = this.phases[this.currentPhase].duration;
+            soundManager.play(this.phases[this.currentPhase].sound);
+          }
+        }, 1000);
       }
 
       stop() {
         clearInterval(this.interval);
-        this.audio.stop();
+        soundManager.stop();
       }
 
       updateDisplay() {
         const minutes = Math.floor(this.remaining / 60).toString().padStart(2, '0');
         const seconds = (this.remaining % 60).toString().padStart(2, '0');
         document.getElementById('countdown').textContent = `${minutes}:${seconds}`;
+        
+        const [phaseText, separator] = i18n[lang].phase;
         document.getElementById('currentPhase').textContent = 
-          `Phase ${this.currentPhase + 1}/${this.phases.length}`;
+          lang === 'zh-TW' ?
+          `${phaseText} ${this.currentPhase + 1}${separator}${this.phases.length}` :
+          `${phaseText} ${this.currentPhase + 1} ${separator} ${this.phases.length}`;
       }
     }
 
-    // 界面初始化
-    const audioManager = new AudioManager();
-    const timer = new FocusTimer(audioManager);
-
-    // 动态生成分段输入
+    // 生成分段输入
     function generateSegments(count) {
-      debug.log(`Generating ${count} segments...`);
       const container = document.getElementById('segmentInputs');
       container.innerHTML = '';
       
       for(let i = 0; i < count; i++) {
         const div = document.createElement('div');
         div.className = 'segment-row';
-        
+
+        // 分段标签
+        const label = document.createElement('span');
+        label.className = 'segment-label';
+        label.textContent = lang === 'zh-TW' ? 
+          `${i18n[lang].segment}${i+1}段` : 
+          `${i18n[lang].segment} ${i+1}`;
+
         // 时间输入
-        const timeInput = document.createElement('input');
-        timeInput.type = 'number';
-        timeInput.className = 'segment-input';
-        timeInput.min = 1;
-        timeInput.value = i % 2 === 0 ? 25 : 5;
-        timeInput.placeholder = 'Minutes';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'segment-input';
+        input.min = 1;
+        input.value = i % 2 === 0 ? 25 : 5;
+
+        // 单位标签
+        const unit = document.createElement('span');
+        unit.className = 'unit-label';
+        unit.textContent = i18n[lang].unit;
 
         // 声音选择
-        const soundSelect = document.createElement('select');
-        soundSelect.className = 'sound-select';
+        const select = document.createElement('select');
+        select.className = 'sound-select';
         ['storm', 'lightrain', 'none'].forEach(type => {
           const option = document.createElement('option');
           option.value = type;
-          option.textContent = type === 'none' ? 'Mute' : 
+          option.textContent = type === 'none' ? 
+            (lang === 'zh-TW' ? '靜音' : 'Mute') : 
             type.charAt(0).toUpperCase() + type.slice(1);
-          soundSelect.appendChild(option);
+          select.appendChild(option);
         });
 
-        div.appendChild(timeInput);
-        div.appendChild(soundSelect);
+        div.appendChild(label);
+        div.appendChild(input);
+        div.appendChild(unit);
+        div.appendChild(select);
         container.appendChild(div);
       }
     }
 
-    // 事件绑定
+    // 3D场景管理
+    function createScene(type) {
+      scene.clear();
+      if(type === 'city') {
+        // 添加城市场景元素...
+      } else {
+        // 添加森林场景元素...
+      }
+    }
+
+    // 初始化
+    const timer = new Timer();
+    initThreeScene();
+
     document.getElementById('segmentCount').addEventListener('input', function() {
-      const value = Math.max(1, parseInt(this.value) || 2);
-      this.value = value;
-      generateSegments(value);
+      generateSegments(Math.max(1, parseInt(this.value) || 2));
     });
 
     document.getElementById('startBtn').addEventListener('click', () => {
-      debug.clear();
-      debug.log('Start button clicked');
-      
-      const totalMinutes = parseInt(document.getElementById('totalTime').value) || 60;
-      debug.log(`Total time: ${totalMinutes} minutes`);
+      const totalSeconds = parseInt(document.getElementById('totalTime').value) * 60;
+      const segments = Array.from(document.querySelectorAll('.segment-row')).map(row => ({
+        duration: (parseInt(row.querySelector('input').value) || 1) * 60,
+        sound: row.querySelector('select').value
+      }));
 
-      const segments = Array.from(document.querySelectorAll('.segment-row')).map((row, index) => {
-        const input = row.querySelector('.segment-input');
-        const select = row.querySelector('.sound-select');
-        return {
-          duration: (parseInt(input.value) || 1) * 60,
-          sound: select.value
-        };
-      });
-
-      debug.log('Raw segments:', JSON.stringify(segments));
-
-      const totalSeconds = totalMinutes * 60;
       let accumulated = 0;
       const phases = [];
-      
       while(accumulated < totalSeconds) {
         for(const seg of segments) {
           const remaining = totalSeconds - accumulated;
@@ -323,22 +310,24 @@
           const duration = Math.min(seg.duration, remaining);
           phases.push({ ...seg, duration });
           accumulated += duration;
-          
-          if(accumulated >= totalSeconds) break;
         }
       }
 
-      debug.log('Processed phases:', JSON.stringify(phases));
       timer.start(phases);
     });
 
-    // 初始设置
-    generateSegments(2);
-    debug.log('Initialization complete');
+    document.getElementById('sceneToggle').addEventListener('click', () => {
+      currentScene = currentScene === 'city' ? 'forest' : 'city';
+      document.getElementById('sceneToggle').textContent = 
+        currentScene === 'city' ? '🌲 Forest' : '🌃 City';
+      createScene(currentScene);
+    });
 
-    // 首次点击处理
+    // 首次生成
+    generateSegments(2);
+
+    // 处理音频自动播放
     document.body.addEventListener('click', () => {
-      debug.log('First user interaction');
       Howler.autoUnlock = true;
       Howler.usingWebAudio = true;
     }, { once: true });
