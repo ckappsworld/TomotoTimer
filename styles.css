@@ -71,21 +71,3 @@ button#startBtn {
   margin-top: 15px;
   font-size: 1.2em;
 }
-.scene-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: all 0.3s;
-}
-
-.scene-toggle:hover {
-  background: #fff;
-  transform: scale(1.05);
-}
