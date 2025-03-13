@@ -1,21 +1,35 @@
-<!-- 修改後的 HTML (index.html) -->
-<div class="control-panel">
-  <div class="time-config">
-    <!-- 保留原有語言切換 -->
-    
-    <div class="input-group">
-      <label data-i18n="total_time"></label>
-      <input type="number" id="totalTime" min="1" value="60">
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pomodoro 3D</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 3D Canvas -->
+  <canvas id="canvas3d"></canvas>
+  <!-- 修改後的 HTML (index.html) -->
+  <div class="control-panel">
+    <div class="time-config">
+      <!-- 保留原有語言切換 -->
+      
+      <div class="input-group">
+        <label data-i18n="total_time"></label>
+        <input type="number" id="totalTime" min="1" value="60">
+      </div>
+  
+      <div class="input-group">
+        <label data-i18n="segment_count"></label>
+        <input type="number" id="segmentCount" min="1" value="2">
+      </div>
+  
+      <!-- 動態分段輸入容器 -->
+      <div id="segmentInputs" class="segment-inputs"></div>
+  
+      <button id="startBtn" data-i18n="start"></button>
     </div>
-
-    <div class="input-group">
-      <label data-i18n="segment_count"></label>
-      <input type="number" id="segmentCount" min="1" value="2">
-    </div>
-
-    <!-- 動態分段輸入容器 -->
-    <div id="segmentInputs" class="segment-inputs"></div>
-
-    <button id="startBtn" data-i18n="start"></button>
   </div>
-</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
