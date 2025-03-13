@@ -2,68 +2,72 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Focus Timer with Custom Sounds</title>
+  <title>Focus Timer - Local Test Version</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
   <style>
-    body {
+    /* 基础样式重置 */
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
+      padding: 0;
     }
 
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 控制面板样式 */
     .control-panel {
-      position: fixed;
-      top: 20px;
-      left: 20px;
       background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      width: 400px;
-      z-index: 1000;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+      margin: 2rem;
     }
 
     .input-group {
-      margin: 15px 0;
+      margin-bottom: 1.5rem;
     }
 
     .input-group label {
       display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
       color: #333;
     }
 
     .segment-row {
       display: flex;
-      gap: 10px;
-      margin: 10px 0;
+      gap: 1rem;
+      margin: 1rem 0;
+      align-items: center;
     }
 
-    .segment-input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-
+    .segment-input,
     .sound-select {
       flex: 1;
-      padding: 8px;
+      padding: 0.8rem;
       border: 1px solid #ddd;
-      border-radius: 4px;
-      background: white;
+      border-radius: 6px;
+      font-size: 1rem;
     }
 
     #startBtn {
       width: 100%;
-      padding: 12px;
+      padding: 1rem;
       background: #4CAF50;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      margin-top: 15px;
+      font-size: 1.1rem;
       transition: background 0.3s;
     }
 
@@ -73,42 +77,51 @@
 
     .timer-display {
       text-align: center;
-      margin-top: 20px;
-      font-size: 1.2em;
+      margin-top: 2rem;
+    }
+
+    #currentPhase {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 0.5rem;
     }
 
     #countdown {
       font-family: monospace;
-      font-size: 1.5em;
-      margin-top: 10px;
+      font-size: 2.5rem;
+      color: #222;
+      font-weight: bold;
     }
 
-    .sound-test-btn {
-      background: #2196F3;
+    .debug-info {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0,0,0,0.8);
       color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-      margin-left: 5px;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: monospace;
+      max-width: 300px;
     }
   </style>
 </head>
 <body>
+  <!-- 控制面板 -->
   <div class="control-panel">
     <div class="input-group">
-      <label>Total Time (minutes)</label>
+      <label for="totalTime">Total Time (minutes)</label>
       <input type="number" id="totalTime" class="segment-input" min="1" value="60">
     </div>
 
     <div class="input-group">
-      <label>Number of Segments</label>
+      <label for="segmentCount">Number of Segments</label>
       <input type="number" id="segmentCount" class="segment-input" min="1" value="2">
     </div>
 
     <div id="segmentInputs"></div>
 
-    <button id="startBtn">Start Focus Session</button>
+    <button id="startBtn" class="start-button">Start Focus Session</button>
 
     <div class="timer-display">
       <div id="currentPhase">Ready</div>
@@ -116,55 +129,68 @@
     </div>
   </div>
 
+  <!-- 调试信息 -->
+  <div class="debug-info" id="debugConsole"></div>
+
   <script>
-    // 音效管理器
-    class SoundManager {
+    // 调试系统
+    const debug = {
+      log: (...args) => {
+        const consoleDiv = document.getElementById('debugConsole');
+        consoleDiv.innerHTML += `<div>${args.join(' ')}</div>`;
+        console.log(...args);
+      },
+      clear: () => {
+        document.getElementById('debugConsole').innerHTML = '';
+      }
+    };
+
+    // 初始化日志
+    debug.log('System Initializing...');
+
+    // 音频管理器
+    class AudioManager {
       constructor() {
+        debug.log('Initializing Audio Manager...');
         this.sounds = {
-          storm: this.createSound('storm01.mp3'),
-          lightrain: this.createSound('lightrain01.mp3')
+          storm: this.loadSound('storm01.mp3'),
+          lightrain: this.loadSound('lightrain01.mp3'),
+          none: { play: () => {}, stop: () => {} }
         };
-        this.currentSound = null;
       }
 
-      createSound(filename) {
+      loadSound(filename) {
+        debug.log(`Loading sound: ${filename}`);
         return new Howl({
           src: [`sounds/${filename}`],
-          html5: true, // 强制使用HTML5 Audio
+          html5: true,
           format: ['mp3'],
+          loop: true,
           onloaderror: (id, err) => {
-            console.error('音效加载失败:', filename, err);
-            alert(`音效加载失败: ${filename}`);
+            debug.log(`Sound load error: ${filename}`, err);
           }
         });
       }
 
       play(type) {
+        debug.log(`Playing sound: ${type}`);
         this.stop();
         if(this.sounds[type]) {
-          this.currentSound = this.sounds[type];
-          this.currentSound.play();
+          this.sounds[type].play();
         }
       }
 
       stop() {
-        if(this.currentSound) {
-          this.currentSound.stop();
-        }
-      }
-
-      testSound(type) {
-        if(this.sounds[type]) {
-          this.sounds[type].play();
-          setTimeout(() => this.sounds[type].stop(), 2000);
-        }
+        Object.values(this.sounds).forEach(sound => {
+          if(sound.stop) sound.stop();
+        });
       }
     }
 
-    // 焦点计时器
+    // 计时器核心
     class FocusTimer {
-      constructor(soundManager) {
-        this.soundManager = soundManager;
+      constructor(audioManager) {
+        this.audio = audioManager;
         this.phases = [];
         this.currentPhase = 0;
         this.remaining = 0;
@@ -172,14 +198,19 @@
       }
 
       start(phases) {
+        debug.log('Starting timer...');
         this.stop();
         this.phases = phases;
-        if(this.phases.length === 0) return;
+        
+        if(this.phases.length === 0) {
+          debug.log('Error: Empty phase list');
+          return;
+        }
 
         this.currentPhase = 0;
         this.remaining = this.phases[0].duration;
         this.updateDisplay();
-        this.soundManager.play(this.phases[0].sound);
+        this.audio.play(this.phases[0].sound);
 
         this.interval = setInterval(() => this.tick(), 1000);
       }
@@ -192,17 +223,19 @@
           this.currentPhase++;
           if(this.currentPhase >= this.phases.length) {
             this.stop();
-            alert('时间到！');
+            debug.log('Timer completed');
+            alert('Session Complete!');
             return;
           }
+          
           this.remaining = this.phases[this.currentPhase].duration;
-          this.soundManager.play(this.phases[this.currentPhase].sound);
+          this.audio.play(this.phases[this.currentPhase].sound);
         }
       }
 
       stop() {
         clearInterval(this.interval);
-        this.soundManager.stop();
+        this.audio.stop();
       }
 
       updateDisplay() {
@@ -210,15 +243,17 @@
         const seconds = (this.remaining % 60).toString().padStart(2, '0');
         document.getElementById('countdown').textContent = `${minutes}:${seconds}`;
         document.getElementById('currentPhase').textContent = 
-          `阶段 ${this.currentPhase + 1}/${this.phases.length}`;
+          `Phase ${this.currentPhase + 1}/${this.phases.length}`;
       }
     }
 
     // 界面初始化
-    const soundManager = new SoundManager();
-    const timer = new FocusTimer(soundManager);
+    const audioManager = new AudioManager();
+    const timer = new FocusTimer(audioManager);
 
+    // 动态生成分段输入
     function generateSegments(count) {
+      debug.log(`Generating ${count} segments...`);
       const container = document.getElementById('segmentInputs');
       container.innerHTML = '';
       
@@ -237,42 +272,44 @@
         // 声音选择
         const soundSelect = document.createElement('select');
         soundSelect.className = 'sound-select';
-        
-        // 添加测试按钮
-        const testBtn = document.createElement('button');
-        testBtn.className = 'sound-test-btn';
-        testBtn.textContent = 'Test';
-        
-        Object.entries(soundManager.sounds).forEach(([key]) => {
+        ['storm', 'lightrain', 'none'].forEach(type => {
           const option = document.createElement('option');
-          option.value = key;
-          option.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+          option.value = type;
+          option.textContent = type === 'none' ? 'Mute' : 
+            type.charAt(0).toUpperCase() + type.slice(1);
           soundSelect.appendChild(option);
         });
 
-        // 绑定测试功能
-        testBtn.onclick = () => {
-          soundManager.testSound(soundSelect.value);
-        };
-
         div.appendChild(timeInput);
         div.appendChild(soundSelect);
-        div.appendChild(testBtn);
         container.appendChild(div);
       }
     }
 
     // 事件绑定
     document.getElementById('segmentCount').addEventListener('input', function() {
-      generateSegments(Math.max(1, parseInt(this.value) || 2));
+      const value = Math.max(1, parseInt(this.value) || 2);
+      this.value = value;
+      generateSegments(value);
     });
 
     document.getElementById('startBtn').addEventListener('click', () => {
+      debug.clear();
+      debug.log('Start button clicked');
+      
       const totalMinutes = parseInt(document.getElementById('totalTime').value) || 60;
-      const segments = Array.from(document.querySelectorAll('.segment-row')).map(row => ({
-        duration: (parseInt(row.querySelector('.segment-input').value) || 1) * 60,
-        sound: row.querySelector('.sound-select').value
-      }));
+      debug.log(`Total time: ${totalMinutes} minutes`);
+
+      const segments = Array.from(document.querySelectorAll('.segment-row')).map((row, index) => {
+        const input = row.querySelector('.segment-input');
+        const select = row.querySelector('.sound-select');
+        return {
+          duration: (parseInt(input.value) || 1) * 60,
+          sound: select.value
+        };
+      });
+
+      debug.log('Raw segments:', JSON.stringify(segments));
 
       const totalSeconds = totalMinutes * 60;
       let accumulated = 0;
@@ -291,14 +328,17 @@
         }
       }
 
+      debug.log('Processed phases:', JSON.stringify(phases));
       timer.start(phases);
     });
 
-    // 初始生成
+    // 初始设置
     generateSegments(2);
+    debug.log('Initialization complete');
 
     // 首次点击处理
     document.body.addEventListener('click', () => {
+      debug.log('First user interaction');
       Howler.autoUnlock = true;
       Howler.usingWebAudio = true;
     }, { once: true });
