@@ -1,159 +1,80 @@
-let currentScene = 'city'; // 当前场景类型
-let rainParticles, riverMesh; // 粒子系统
-let sceneObjects = []; // 场景对象集合
+// Three.js 初始化
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d') });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xf0f0f0);
 
-// 初始化场景
-function initScene(sceneType) {
-  // 清除旧场景
-  scene.children = [];
-  scene.add(camera);
-  sceneObjects = [];
+// 測試立方體
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshBasicMaterial({ color: 0x0099ff });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+camera.position.z = 5;
 
-  if(sceneType === 'city') {
-    createCityScene();
-  } else {
-    createForestScene();
+// 動態分段生成
+function generateSegments(count) {
+  const container = document.getElementById('segmentInputs');
+  container.innerHTML = '';
+  
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement('div');
+    div.className = 'segment-input';
+    div.innerHTML = `
+      <label>Segment ${i + 1} (min)</label>
+      <input type="number" class="segment" min="1" value="${i % 2 === 0 ? 25 : 5}">
+    `;
+    container.appendChild(div);
   }
 }
 
-// 城市雨夜场景
-function createCityScene() {
-  // 环境光
-  const ambientLight = new THREE.AmbientLight(0x222222);
-  scene.add(ambientLight);
+// 初始化分段
+generateSegments(2);
 
-  // 建筑群
-  for(let i = 0; i < 20; i++) {
-    const building = new THREE.Mesh(
-      new THREE.BoxGeometry(15, Math.random()*50 + 30, 15),
-      new THREE.MeshPhongMaterial({ 
-        color: 0x444444,
-        emissive: 0x333333 
-      })
-    );
-    building.position.set(
-      Math.random()*200 -100,
-      0,
-      Math.random()*200 -100
-    );
-    scene.add(building);
-    sceneObjects.push(building);
-  }
-
-  // 雨滴粒子系统
-  const rainGeometry = new THREE.BufferGeometry();
-  const positions = [];
-  for(let i = 0; i < 5000; i++) {
-    positions.push(
-      Math.random() * 400 - 200,
-      Math.random() * 200 + 100,
-      Math.random() * 400 - 200
-    );
-  }
-  rainGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  
-  const rainMaterial = new THREE.PointsMaterial({
-    color: 0xAAAAFF,
-    size: 0.1,
-    transparent: true
-  });
-  
-  rainParticles = new THREE.Points(rainGeometry, rainMaterial);
-  scene.add(rainParticles);
-  sceneObjects.push(rainParticles);
-
-  // 路灯
-  const streetLight = new THREE.PointLight(0xFFEECC, 1, 50);
-  streetLight.position.set(0, 20, 0);
-  scene.add(streetLight);
-}
-
-// 森林溪流场景
-function createForestScene() {
-  // 环境光
-  const ambientLight = new THREE.AmbientLight(0x668833, 0.5);
-  scene.add(ambientLight);
-
-  // 太阳光
-  const directionalLight = new THREE.DirectionalLight(0xFFFFCC, 0.8);
-  directionalLight.position.set(50, 100, 50);
-  scene.add(directionalLight);
-
-  // 地面
-  const groundGeometry = new THREE.PlaneGeometry(400, 400);
-  const groundMaterial = new THREE.MeshPhongMaterial({
-    color: 0x339944,
-    side: THREE.DoubleSide
-  });
-  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-  ground.rotation.x = Math.PI / 2;
-  scene.add(ground);
-  sceneObjects.push(ground);
-
-  // 溪流
-  const riverGeometry = new THREE.PlaneGeometry(40, 400);
-  const riverMaterial = new THREE.MeshPhongMaterial({
-    color: 0x4488FF,
-    transparent: true,
-    opacity: 0.7
-  });
-  riverMesh = new THREE.Mesh(riverGeometry, riverMaterial);
-  riverMesh.rotation.x = Math.PI / 2;
-  riverMesh.position.y = 0.1;
-  scene.add(riverMesh);
-  sceneObjects.push(riverMesh);
-
-  // 树木
-  for(let i = 0; i < 50; i++) {
-    const tree = new THREE.Mesh(
-      new THREE.ConeGeometry(3, 10 + Math.random()*10, 8),
-      new THREE.MeshPhongMaterial({ color: 0x225511 })
-    );
-    tree.position.set(
-      Math.random()*300 -150,
-      0,
-      Math.random()*300 -150
-    );
-    scene.add(tree);
-    sceneObjects.push(tree);
-  }
-}
-
-// 场景切换功能
-document.getElementById('sceneToggle').addEventListener('click', () => {
-  currentScene = currentScene === 'city' ? 'forest' : 'city';
-  document.getElementById('sceneToggle').textContent = 
-    currentScene === 'city' ? '🌲 Forest' : '🌃 City';
-  
-  initScene(currentScene);
+// 事件監聽
+document.getElementById('segmentCount').addEventListener('input', function() {
+  generateSegments(Math.max(1, this.value));
 });
 
-// 修改动画循环
-function animate() {
-  requestAnimationFrame(animate);
-  
-  // 场景特定动画
-  if(currentScene === 'city') {
-    // 雨滴下落动画
-    if(rainParticles) {
-      const positions = rainParticles.geometry.attributes.position.array;
-      for(let i = 1; i < positions.length; i += 3) {
-        positions[i] -= 0.5;
-        if(positions[i] < -50) positions[i] = 100;
-      }
-      rainParticles.geometry.attributes.position.needsUpdate = true;
-    }
-  } else {
-    // 溪流动画
-    if(riverMesh) {
-      riverMesh.material.opacity = 0.7 + Math.sin(Date.now()*0.005)*0.1;
-      riverMesh.position.z = Math.sin(Date.now()*0.003)*10;
-    }
-  }
+document.getElementById('startBtn').addEventListener('click', () => {
+  const totalMinutes = parseInt(document.getElementById('totalTime').value);
+  const segments = Array.from(document.querySelectorAll('.segment')).map(
+    input => parseInt(input.value) * 60
+  );
+  startTimer(totalMinutes * 60, segments);
+});
 
-  renderer.render(scene, camera);
+// 計時器邏輯
+function startTimer(totalSeconds, segments) {
+  let currentSegment = 0;
+  let remaining = segments[0];
+  
+  const timer = setInterval(() => {
+    remaining--;
+    
+    document.getElementById('countdown').textContent = 
+      `${Math.floor(remaining / 60).toString().padStart(2, '0')}:${(remaining % 60).toString().padStart(2, '0')}`;
+    
+    document.getElementById('currentPhase').textContent = 
+      `Segment ${currentSegment + 1} [${segments[currentSegment]/60}min]`;
+
+    if (remaining <= 0) {
+      currentSegment++;
+      if (currentSegment >= segments.length) {
+        clearInterval(timer);
+        alert('Timer Complete!');
+        return;
+      }
+      remaining = segments[currentSegment];
+    }
+  }, 1000);
 }
 
-// 初始化默认场景
-initScene('city');
+// 動畫循環
+function animate() {
+  requestAnimationFrame(animate);
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+  renderer.render(scene, camera);
+}
 animate();
