@@ -1,43 +1,153 @@
+/* 基礎重置 */
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
 body {
   margin: 0;
   overflow: hidden;
+  background: #1a1a1a;
 }
 
+/* 3D 畫布 */
 #canvas3d {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 0;
 }
 
+/* 控制面板 */
 .control-panel {
   position: fixed;
   top: 20px;
   left: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  min-width: 320px;
+  backdrop-filter: blur(5px);
 }
 
-.time-config input {
-  width: 80px;
-  margin: 5px;
+/* 語言切換器 */
+.language-switcher {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
-/* 新增 CSS */
+
+#languageSelect {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9em;
+}
+
+/* 輸入群組 */
+.input-group {
+  margin: 12px 0;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+}
+
+/* 分段輸入區 */
 .segment-inputs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
   margin: 15px 0;
+  display: grid;
+  gap: 10px;
 }
 
 .segment-input {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .segment-input label {
-  min-width: 70px;
+  min-width: 80px;
+  font-size: 0.9em;
+}
+
+.segment-input input {
+  flex: 1;
+  padding: 6px 10px;
+}
+
+/* 開始按鈕 */
+.start-button {
+  width: 100%;
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.start-button:hover {
+  background: #45a049;
+}
+
+/* 計時顯示 */
+.timer-display {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.phase-info {
+  font-size: 1.4em;
+  margin-bottom: 10px;
+}
+
+#countdown {
+  display: inline-block;
+  margin-left: 10px;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/* 進度條 */
+.progress-container {
+  height: 6px;
+  background: #eee;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #4CAF50;
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+/* 響應式設計 */
+@media (max-width: 480px) {
+  .control-panel {
+    left: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    min-width: auto;
+  }
 }
