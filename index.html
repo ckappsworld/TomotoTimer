@@ -1,35 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="auto">
 <head>
-  <title>Pomodoro 3D</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Pomodoro Soundscapes</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- 3D Canvas -->
+  <!-- Three.js 畫布 -->
   <canvas id="canvas3d"></canvas>
-  <!-- 修改後的 HTML (index.html) -->
+
+  <!-- 控制面板 -->
   <div class="control-panel">
+    <!-- 語言切換 -->
+    <div class="language-switcher">
+      <select id="languageSelect">
+        <option value="auto" data-i18n="auto">Auto</option>
+        <option value="en" data-i18n="english">English</option>
+        <option value="zh-TW" data-i18n="chinese">中文</option>
+      </select>
+    </div>
+
+    <!-- 時間設定 -->
     <div class="time-config">
-      <!-- 保留原有語言切換 -->
-      
       <div class="input-group">
         <label data-i18n="total_time"></label>
         <input type="number" id="totalTime" min="1" value="60">
       </div>
-  
+
       <div class="input-group">
         <label data-i18n="segment_count"></label>
         <input type="number" id="segmentCount" min="1" value="2">
       </div>
-  
-      <!-- 動態分段輸入容器 -->
+
+      <!-- 動態分段輸入區 -->
       <div id="segmentInputs" class="segment-inputs"></div>
-  
-      <button id="startBtn" data-i18n="start"></button>
+
+      <button id="startBtn" class="start-button" data-i18n="start"></button>
+    </div>
+
+    <!-- 計時顯示 -->
+    <div class="timer-display">
+      <div class="phase-info">
+        <span id="currentPhase" data-i18n="preparing"></span>
+        <span id="countdown">00:00</span>
+      </div>
+      <div class="progress-container">
+        <div id="timeProgress" class="progress-bar"></div>
+      </div>
     </div>
   </div>
 
+  <!-- 第三方庫 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- 本地腳本 -->
   <script src="main.js"></script>
 </body>
 </html>
