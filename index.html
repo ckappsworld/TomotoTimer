@@ -2,34 +2,24 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>3D Focus Timer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <title>Focus Timer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
   <style>
     body {
       margin: 0;
-      overflow: hidden;
       font-family: Arial, sans-serif;
-    }
-
-    #canvas3d {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
+      background-color: #f0f2f5;
+      color: #333;
     }
 
     .control-panel {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.95);
+      margin: 20px auto;
+      background: #fff;
       padding: 20px;
       border-radius: 10px;
-      width: 400px;
-      z-index: 1;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .segment-row {
@@ -37,6 +27,7 @@
       gap: 10px;
       margin: 10px 0;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .segment-label {
@@ -63,6 +54,15 @@
       border-radius: 4px;
     }
 
+    .external-url {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: none;
+    }
+
     #startBtn {
       width: 100%;
       padding: 12px;
@@ -72,108 +72,168 @@
       border-radius: 4px;
       cursor: pointer;
       margin-top: 15px;
+      font-weight: bold;
     }
 
     .timer-display {
       text-align: center;
       margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
     }
 
     #countdown {
       font-family: monospace;
-      font-size: 2em;
+      font-size: 2.5em;
+      margin: 10px 0;
     }
 
-    .scene-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.9);
+    #videoContainer {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 500px;
+      height: 280px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
       border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      z-index: 2;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas3d"></canvas>
-  <button class="scene-toggle" id="sceneToggle">🌲 Forest</button>
-
   <div class="control-panel">
     <div class="input-group">
-      <label>Total Time (minutes)</label>
+      <label>總時間（分鐘）</label>
       <input type="number" id="totalTime" class="segment-input" min="1" value="60">
     </div>
 
     <div class="input-group">
-      <label>Number of Segments</label>
+      <label>分段數量</label>
       <input type="number" id="segmentCount" class="segment-input" min="1" value="2">
     </div>
 
     <div id="segmentInputs"></div>
 
-    <button id="startBtn">Start Focus Session</button>
+    <button id="startBtn">開始專注計時</button>
 
     <div class="timer-display">
-      <div id="currentPhase">Ready</div>
+      <div id="currentPhase">準備開始</div>
       <div id="countdown">00:00</div>
     </div>
   </div>
 
+  <div id="videoContainer"></div>
+
   <script>
-    // 多语言配置
+    // 多語言配置
     const i18n = {
       'en': {
         segment: 'Segment',
         unit: 'min',
-        phase: ['Phase', 'of']
+        phase: ['Phase', 'of'],
+        enterUrl: 'Enter URL...'
       },
       'zh-TW': {
         segment: '第',
         unit: '分鐘',
-        phase: ['階段', '/']
+        phase: ['階段', '/'],
+        enterUrl: '輸入連結...'
       }
     };
 
-    // 获取浏览器语言
+    // 獲取瀏覽器語言
     const getLanguage = () => navigator.language.startsWith('zh') ? 'zh-TW' : 'en';
     const lang = getLanguage();
 
-    // 3D场景初始化
-    let scene, camera, renderer, currentScene = 'city';
-    function initThreeScene() {
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-      renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d') });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      createScene(currentScene);
-    }
-
-    // 音效管理器
-    const soundManager = {
-      currentSound: null,
+    // 媒體管理器
+    const mediaManager = {
+      currentMedia: null,
+      currentType: null,
+      videoContainer: document.getElementById('videoContainer'),
+      
       sounds: {
         storm: new Howl({ src: ['sounds/storm01.mp3'], loop: true }),
         lightrain: new Howl({ src: ['sounds/lightrain01.mp3'], loop: true }),
         none: { play: () => {}, stop: () => {} }
       },
-      play(type) {
+      
+      play(type, url) {
         this.stop();
-        if(this.sounds[type]) {
-          this.currentSound = this.sounds[type];
-          this.currentSound.play();
+        this.currentType = type;
+        
+        if(type === 'youtube') {
+          this.playYouTube(url);
+        } else if(type === 'bilibili') {
+          this.playBilibili(url);
+        } else if(this.sounds[type]) {
+          this.currentMedia = this.sounds[type];
+          this.currentMedia.play();
         }
       },
-      stop() {
-        if(this.currentSound && this.currentSound.stop) {
-          this.currentSound.stop();
+      
+      playYouTube(url) {
+        let videoId = '';
+        
+        if(url.includes('youtube.com/watch')) {
+          videoId = new URL(url).searchParams.get('v');
+        } else if(url.includes('youtu.be/')) {
+          videoId = url.split('youtu.be/')[1].split('?')[0];
         }
+        
+        if(videoId) {
+          const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
+          this.embedVideo(embedUrl);
+        }
+      },
+      
+      playBilibili(url) {
+        let bvid = '';
+        
+        if(url.includes('bilibili.com/video/')) {
+          bvid = url.split('bilibili.com/video/')[1].split('?')[0];
+        }
+        
+        if(bvid) {
+          const embedUrl = `https://player.bilibili.com/player.html?bvid=${bvid}&autoplay=1`;
+          this.embedVideo(embedUrl);
+        }
+      },
+      
+      embedVideo(embedUrl) {
+        this.videoContainer.innerHTML = '';
+        
+        const iframe = document.createElement('iframe');
+        iframe.src = embedUrl;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
+        
+        this.videoContainer.appendChild(iframe);
+        this.videoContainer.style.display = 'block';
+      },
+      
+      stop() {
+        // 停止音頻
+        if(this.currentMedia && this.currentMedia.stop) {
+          this.currentMedia.stop();
+        }
+        
+        // 隱藏視頻
+        this.videoContainer.innerHTML = '';
+        this.videoContainer.style.display = 'none';
+        
+        this.currentMedia = null;
+        this.currentType = null;
       }
     };
 
-    // 计时器核心
+    // 計時器核心
     class Timer {
       constructor() {
         this.phases = [];
@@ -189,7 +249,9 @@
 
         this.currentPhase = 0;
         this.remaining = this.phases[0].duration;
-        soundManager.play(this.phases[0].sound);
+        
+        // 播放第一階段聲音
+        mediaManager.play(this.phases[0].soundType, this.phases[0].soundUrl);
         this.updateDisplay();
 
         this.interval = setInterval(() => {
@@ -200,18 +262,18 @@
             this.currentPhase++;
             if(this.currentPhase >= this.phases.length) {
               this.stop();
-              alert('Session Complete!');
+              alert('專注時段已完成！');
               return;
             }
             this.remaining = this.phases[this.currentPhase].duration;
-            soundManager.play(this.phases[this.currentPhase].sound);
+            mediaManager.play(this.phases[this.currentPhase].soundType, this.phases[this.currentPhase].soundUrl);
           }
         }, 1000);
       }
 
       stop() {
         clearInterval(this.interval);
-        soundManager.stop();
+        mediaManager.stop();
       }
 
       updateDisplay() {
@@ -227,7 +289,7 @@
       }
     }
 
-    // 生成分段输入
+    // 生成分段輸入
     function generateSegments(count) {
       const container = document.getElementById('segmentInputs');
       container.innerHTML = '';
@@ -236,58 +298,69 @@
         const div = document.createElement('div');
         div.className = 'segment-row';
 
-        // 分段标签
+        // 分段標籤
         const label = document.createElement('span');
         label.className = 'segment-label';
         label.textContent = lang === 'zh-TW' ? 
           `${i18n[lang].segment}${i+1}段` : 
           `${i18n[lang].segment} ${i+1}`;
 
-        // 时间输入
+        // 時間輸入
         const input = document.createElement('input');
         input.type = 'number';
         input.className = 'segment-input';
         input.min = 1;
         input.value = i % 2 === 0 ? 25 : 5;
 
-        // 单位标签
+        // 單位標籤
         const unit = document.createElement('span');
         unit.className = 'unit-label';
         unit.textContent = i18n[lang].unit;
 
-        // 声音选择
+        // 聲音選擇
         const select = document.createElement('select');
         select.className = 'sound-select';
-        ['storm', 'lightrain', 'none'].forEach(type => {
-          const option = document.createElement('option');
-          option.value = type;
-          option.textContent = type === 'none' ? 
-            (lang === 'zh-TW' ? '靜音' : 'Mute') : 
-            type.charAt(0).toUpperCase() + type.slice(1);
-          select.appendChild(option);
+        
+        // 添加內建音效選項
+        const builtInOptions = [
+          {value: 'storm', text: '雷暴聲'},
+          {value: 'lightrain', text: '輕雨聲'},
+          {value: 'youtube', text: 'YouTube影片'},
+          {value: 'bilibili', text: 'B站影片'},
+          {value: 'none', text: '靜音'}
+        ];
+        
+        builtInOptions.forEach(option => {
+          const optElem = document.createElement('option');
+          optElem.value = option.value;
+          optElem.textContent = option.text;
+          select.appendChild(optElem);
+        });
+        
+        // 外部URL輸入框
+        const urlInput = document.createElement('input');
+        urlInput.type = 'text';
+        urlInput.className = 'external-url';
+        urlInput.placeholder = i18n[lang].enterUrl;
+        urlInput.style.display = 'none';
+        
+        // 監聽選項變化以顯示/隱藏URL輸入框
+        select.addEventListener('change', function() {
+          urlInput.style.display = 
+            (this.value === 'youtube' || this.value === 'bilibili') ? 'block' : 'none';
         });
 
         div.appendChild(label);
         div.appendChild(input);
         div.appendChild(unit);
         div.appendChild(select);
+        div.appendChild(urlInput);
         container.appendChild(div);
-      }
-    }
-
-    // 3D场景管理
-    function createScene(type) {
-      scene.clear();
-      if(type === 'city') {
-        // 添加城市场景元素...
-      } else {
-        // 添加森林场景元素...
       }
     }
 
     // 初始化
     const timer = new Timer();
-    initThreeScene();
 
     document.getElementById('segmentCount').addEventListener('input', function() {
       generateSegments(Math.max(1, parseInt(this.value) || 2));
@@ -297,7 +370,8 @@
       const totalSeconds = parseInt(document.getElementById('totalTime').value) * 60;
       const segments = Array.from(document.querySelectorAll('.segment-row')).map(row => ({
         duration: (parseInt(row.querySelector('input').value) || 1) * 60,
-        sound: row.querySelector('select').value
+        soundType: row.querySelector('select').value,
+        soundUrl: row.querySelector('.external-url').value
       }));
 
       let accumulated = 0;
@@ -316,21 +390,14 @@
       timer.start(phases);
     });
 
-    document.getElementById('sceneToggle').addEventListener('click', () => {
-      currentScene = currentScene === 'city' ? 'forest' : 'city';
-      document.getElementById('sceneToggle').textContent = 
-        currentScene === 'city' ? '🌲 Forest' : '🌃 City';
-      createScene(currentScene);
-    });
-
-    // 首次生成
-    generateSegments(2);
-
-    // 处理音频自动播放
+    // 處理音頻自動播放
     document.body.addEventListener('click', () => {
       Howler.autoUnlock = true;
       Howler.usingWebAudio = true;
     }, { once: true });
+
+    // 首次生成
+    generateSegments(2);
   </script>
 </body>
 </html>
