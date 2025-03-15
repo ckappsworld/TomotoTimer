@@ -159,8 +159,14 @@
       videoContainer: document.getElementById('videoContainer'),
       
       sounds: {
-        storm: new Howl({ src: ['sounds/storm01.mp3'], loop: true }),
+        birds: new Howl({ src: ['sounds/Birds01.mp3'], loop: true }),
         lightrain: new Howl({ src: ['sounds/lightrain01.mp3'], loop: true }),
+        oceanwave: new Howl({ src: ['sounds/ocean-waves01.mp3'], loop: true }),
+        storm: new Howl({ src: ['sounds/storm01.mp3'], loop: true }),
+        waterstream: new Howl({ src: ['sounds/water-stream01.mp3'], loop: true }),
+        waterflow: new Howl({ src: ['sounds/water-flow01.mp3'], loop: true }),
+        wavealpha: new Howl({ src: ['sounds/waves-alpha01.mp3'], loop: true }),
+        wavebeta: new Howl({ src: ['sounds/waves beta01.mp3'], loop: true }),
         none: { play: () => {}, stop: () => {} }
       },
       
@@ -262,7 +268,7 @@
             this.currentPhase++;
             if(this.currentPhase >= this.phases.length) {
               this.stop();
-              alert('專注時段已完成！');
+              alert('Done！');
               return;
             }
             this.remaining = this.phases[this.currentPhase].duration;
@@ -323,11 +329,18 @@
         
         // 添加內建音效選項
         const builtInOptions = [
-          {value: 'storm', text: '雷暴聲'},
-          {value: 'lightrain', text: '輕雨聲'},
-          {value: 'youtube', text: 'YouTube影片'},
-          {value: 'bilibili', text: 'B站影片'},
-          {value: 'none', text: '靜音'}
+          {value: 'none', text: 'Mute'},
+          {value: 'youtube', text: 'YouTube'},
+          {value: 'bilibili', text: 'BiliBili'},
+          {value: 'wavealpha', text: 'Alpha Waves'},
+          {value: 'wavebeta', text: 'Beta Waves'},
+          {value: 'birds', text: 'Birds'},
+          {value: 'lightrain', text: 'Rain'},
+          {value: 'oceanwave', text: 'Ocean Waves'},
+          {value: 'storm', text: 'Storm'},
+          {value: 'waterflow', text: 'Water Flow'},
+          {value: 'waterstream', text: 'Water Stream'}
+          
         ];
         
         builtInOptions.forEach(option => {
