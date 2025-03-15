@@ -157,6 +157,9 @@
       currentMedia: null,
       currentType: null,
       videoContainer: document.getElementById('videoContainer'),
+      playerCheckInterval: null,
+      currentUrl: null,
+      segmentDuration: 0,
       
       sounds: {
         birds: new Howl({ src: ['sounds/Birds01.mp3'], loop: true }),
@@ -170,9 +173,11 @@
         none: { play: () => {}, stop: () => {} }
       },
       
-      play(type, url) {
+      play(type, url, duration) {
         this.stop();
         this.currentType = type;
+        this.currentUrl = url;
+        this.segmentDuration = duration;
         
         if(type === 'youtube') {
           this.playYouTube(url);
@@ -194,34 +199,135 @@
         }
         
         if(videoId) {
-          const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
-          this.embedVideo(embedUrl);
+          // 創建帶有API控制參數的嵌入URL
+          const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&enablejsapi=1`;
+          this.embedVideo(embedUrl, 'youtube');
         }
       },
       
       playBilibili(url) {
         let bvid = '';
         
+        // 提取BV號碼，修正了提取方式
         if(url.includes('bilibili.com/video/')) {
-          bvid = url.split('bilibili.com/video/')[1].split('?')[0];
+          const match = url.match(/bilibili\.com\/video\/([^/?]+)/);
+          if(match && match[1]) {
+            bvid = match[1];
+          }
         }
         
         if(bvid) {
-          const embedUrl = `https://player.bilibili.com/player.html?bvid=${bvid}&autoplay=1`;
-          this.embedVideo(embedUrl);
+          const embedUrl = `https://player.bilibili.com/player.html?bvid=${bvid}&autoplay=1&danmaku=0`;
+          this.embedVideo(embedUrl, 'bilibili');
         }
       },
       
-      embedVideo(embedUrl) {
+      embedVideo(embedUrl, videoType) {
         this.videoContainer.innerHTML = '';
         
         const iframe = document.createElement('iframe');
         iframe.src = embedUrl;
         iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
         iframe.allowFullscreen = true;
+        iframe.id = `${videoType}-player`;
         
         this.videoContainer.appendChild(iframe);
         this.videoContainer.style.display = 'block';
+        
+        // 設置播放器檢查間隔
+        this.setupPlayerMonitoring(videoType);
+      },
+      
+      setupPlayerMonitoring(videoType) {
+        // 清除已有的監控
+        clearInterval(this.playerCheckInterval);
+        
+        if(videoType === 'youtube') {
+          this.setupYouTubeMonitoring();
+        } else if(videoType === 'bilibili') {
+          this.setupBilibiliMonitoring();
+        }
+      },
+      
+      setupYouTubeMonitoring() {
+        let player = null;
+        let playerState = -1;
+        
+        // 加載YouTube API
+        if(!window.YT) {
+          const tag = document.createElement('script');
+          tag.src = "https://www.youtube.com/iframe_api";
+          const firstScriptTag = document.getElementsByTagName('script')[0];
+          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+        
+        // 定義onYouTubeIframeAPIReady回調
+        window.onYouTubeIframeAPIReady = () => {
+          // 檢查是否仍然是YouTube播放
+          if(this.currentType !== 'youtube') return;
+          
+          const iframe = document.getElementById('youtube-player');
+          if(!iframe) return;
+          
+          player = new YT.Player('youtube-player', {
+            events: {
+              'onStateChange': (event) => {
+                playerState = event.data;
+                // 如果視頻結束而階段還未結束，重新播放視頻
+                if(playerState === YT.PlayerState.ENDED) {
+                  player.playVideo();
+                }
+              }
+            }
+          });
+        };
+        
+        // 如果API已加載，直接執行
+        if(window.YT && window.YT.Player) {
+          window.onYouTubeIframeAPIReady();
+        }
+      },
+      
+      setupBilibiliMonitoring() {
+        // Bilibili不提供類似YouTube的API，但我們可以通過postMessage進行一些操控
+        // 這裡僅實現基本監控，實際效果可能有限
+        this.playerCheckInterval = setInterval(() => {
+          const iframe = document.getElementById('bilibili-player');
+          if(!iframe) {
+            clearInterval(this.playerCheckInterval);
+            return;
+          }
+          
+          // 嘗試檢測播放狀態並在需要時重新加載
+          try {
+            iframe.contentWindow.postMessage('{"cmd":"isFullScreen"}', '*');
+          } catch(e) {
+            // 忽略跨域錯誤
+          }
+        }, 2000);
+        
+        // 監聽來自iframe的消息
+        window.addEventListener('message', (event) => {
+          if(event.data && typeof event.data === 'string') {
+            try {
+              const data = JSON.parse(event.data);
+              // 如果檢測到視頻已經結束，重新加載iframe
+              if(data.event === 'end') {
+                this.reloadCurrentVideo();
+              }
+            } catch(e) {
+              // 忽略解析錯誤
+            }
+          }
+        });
+      },
+      
+      reloadCurrentVideo() {
+        if(this.currentType === 'youtube') {
+          this.playYouTube(this.currentUrl);
+        } else if(this.currentType === 'bilibili') {
+          this.playBilibili(this.currentUrl);
+        }
       },
       
       stop() {
@@ -230,12 +336,16 @@
           this.currentMedia.stop();
         }
         
+        // 清除監控間隔
+        clearInterval(this.playerCheckInterval);
+        
         // 隱藏視頻
         this.videoContainer.innerHTML = '';
         this.videoContainer.style.display = 'none';
         
         this.currentMedia = null;
         this.currentType = null;
+        this.currentUrl = null;
       }
     };
 
