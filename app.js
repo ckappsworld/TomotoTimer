@@ -361,3 +361,19 @@ if (isMobileDevice()) {
     toggleBtn.style.display = 'flex';
   };
 }
+document.addEventListener('DOMContentLoaded', function() {
+  // 計算實際的視窗高度，解決手機瀏覽器地址欄問題
+  function setVH() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+  
+  // 初始設置
+  setVH();
+  
+  // 當視窗大小改變時重新計算
+  window.addEventListener('resize', setVH);
+  
+  // 針對手機旋轉
+  window.addEventListener('orientationchange', setVH);
+});
