@@ -320,3 +320,44 @@ document.body.addEventListener('click', () => {
 }, { once: true });
 
 generateSegments(2);
+
+// 檢查是否為移動設備
+function isMobileDevice() {
+  return window.innerWidth <= 768;
+}
+
+// 只在移動設備上創建視頻切換按鈕
+if (isMobileDevice()) {
+  // 創建切換視頻的按鈕
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'toggle-video-btn';
+  toggleBtn.innerHTML = '📺';
+  toggleBtn.style.display = 'none'; // 初始隱藏，直到計時器啟動
+  document.body.appendChild(toggleBtn);
+  
+  // 添加切換功能
+  toggleBtn.addEventListener('click', function() {
+    const videoContainer = document.getElementById('videoContainer');
+    if (videoContainer.style.display === 'block') {
+      videoContainer.style.display = 'none';
+      document.body.classList.remove('video-active');
+    } else {
+      videoContainer.style.display = 'block';
+      document.body.classList.add('video-active');
+    }
+  });
+  
+  // 修改現有啟動邏輯，讓切換按鈕在計時器啟動時顯示
+  const originalStartBtn = document.getElementById('startBtn');
+  const originalClickHandler = originalStartBtn.onclick;
+  
+  originalStartBtn.onclick = function() {
+    // 調用原始的點擊處理程序
+    if (originalClickHandler) {
+      originalClickHandler.call(this);
+    }
+    
+    // 顯示切換按鈕
+    toggleBtn.style.display = 'flex';
+  };
+}
