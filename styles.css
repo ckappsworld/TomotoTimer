@@ -1,3 +1,4 @@
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -5,39 +6,15 @@ body {
   color: #333;
 }
 
-/* 灰色玻璃反光效果 CSS */
 .control-panel {
   margin: 20px auto;
-  background: rgba(128, 128, 128, 0.2); /* 灰色半透明背景 */
-  backdrop-filter: blur(10px); /* 背景模糊效果 */
-  -webkit-backdrop-filter: blur(10px); /* Safari 支援 */
+  background: #fff;
   padding: 20px;
   border-radius: 10px;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(255,255,255,0.3) inset;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   position: relative;
-  border: 1px solid rgba(255,255,255,0.18); /* 邊框增加微妙的光澤 */
-}
-
-/* 頂部反光效果 */
-.control-panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
-  border-radius: 10px 10px 0 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
-  pointer-events: none; /* 讓這個元素不影響互動 */
-}
-
-/* 相關輸入元素也加入玻璃效果 */
-.segment-input, .sound-select, .external-url {
-  border: 1px solid rgba(221, 221, 221, 0.5);
-  backdrop-filter: blur(4px);
-  background: rgba(255, 255, 255, 0.7);
 }
 
 .segment-row {
@@ -82,19 +59,23 @@ body {
 }
 
 #startBtn {
-  background: rgba(76, 175, 80, 0.85);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-#startBtn:hover {
-  background: rgba(76, 175, 80, 1);
+  width: 100%;
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-weight: bold;
 }
 
 .timer-display {
-  background: rgba(249, 249, 249, 0.5);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1), 0 1px 2px rgba(255,255,255,0.2) inset;
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
 }
 
 #countdown {
