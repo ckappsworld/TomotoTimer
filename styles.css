@@ -121,7 +121,6 @@ canvas {
   body, html {
     margin: 0;
     padding: 0;
-    height: 100%;
     width: 100%;
     overflow-x: hidden;
     background-color: #fff;
@@ -131,33 +130,19 @@ canvas {
     margin: 0;
     width: 100%;
     max-width: 100%;
-    height: 100vh; /* 使用視窗高度 */
-    min-height: 100vh;
     border-radius: 0;
     box-shadow: none;
     padding: 15px;
-  }
-  
-  #videoContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    max-width: 100%;
-    margin: 0;
-    z-index: 999;
-    border-radius: 0;
-  }
-
-  @media screen and (max-width: 768px) {
-  .control-panel {
-    height: calc(var(--vh, 1vh) * 100);
     min-height: calc(var(--vh, 1vh) * 100);
   }
   
   #videoContainer {
-    height: calc(var(--vh, 1vh) * 100);
+    margin: 10px auto;
+    width: 100%;
+    max-width: 100%;
+    height: 220px;
+    border-radius: 0;
+    position: relative; /* 移除固定定位 */
+    z-index: 1; /* 降低z-index */
   }
-}
 }
