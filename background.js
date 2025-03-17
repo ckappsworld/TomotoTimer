@@ -1,4 +1,4 @@
-let is3DBackgroundEnabled = true;
+let is3DBackgroundEnabled = false; // 初始設置為false，暫時不顯示3D元素
 
 // 在適當的初始化函數中添加
 function initBatteryMonitor() {
@@ -43,6 +43,14 @@ function checkBatteryStatus(battery) {
     }
 }
 
+function enableFullGraphics() {
+    is3DBackgroundEnabled = true;
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+        canvas.style.display = 'block';
+    }
+}
+
 // 在頁面加載時初始化
 document.addEventListener('DOMContentLoaded', initBatteryMonitor);
 
@@ -67,19 +75,26 @@ function init3DBackground() {
     }
     
     renderer.setClearColor(0x000000, 0);
+    renderer.domElement.style.zIndex = '-1'; // 確保3D背景在背景圖片之上
+    renderer.domElement.style.position = 'fixed';
     document.body.prepend(renderer.domElement);
 
-    // 根據性能選擇不同的幾何體複雜度
-    const detailLevel = isLowPower ? 1 : 2;
-    const geometry = new THREE.IcosahedronGeometry(2, detailLevel);
-    const material = new THREE.MeshPhongMaterial({
-        color: 0x0099ff,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.3
-    });
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    // 如果初始設置為不顯示3D元素，隱藏canvas
+    if (!is3DBackgroundEnabled) {
+        renderer.domElement.style.display = 'none';
+    }
+
+    // 由於我們暫時不顯示3D元素，先註釋掉相關代碼
+    // const detailLevel = isLowPower ? 1 : 2;
+    // const geometry = new THREE.IcosahedronGeometry(2, detailLevel);
+    // const material = new THREE.MeshPhongMaterial({
+    //     color: 0x0099ff,
+    //     wireframe: true,
+    //     transparent: true,
+    //     opacity: 0.3
+    // });
+    // const mesh = new THREE.Mesh(geometry, material);
+    // scene.add(mesh);
 
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.position.set(10, 10, 10);
@@ -96,8 +111,9 @@ function init3DBackground() {
     function animate(currentTime) {
         if (currentTime - lastTime > interval) {
             lastTime = currentTime;
-            mesh.rotation.x += rotationSpeed;
-            mesh.rotation.y += rotationSpeed;
+            // 註釋掉旋轉邏輯，因為我們暫時沒有添加3D物體
+            // mesh.rotation.x += rotationSpeed;
+            // mesh.rotation.y += rotationSpeed;
             renderer.render(scene, camera);
         }
         requestAnimationFrame(animate);
@@ -127,3 +143,6 @@ function init3DBackground() {
 
     let animationFrame = requestAnimationFrame(animate);
 }
+
+// 啟動3D背景初始化
+init3DBackground();
