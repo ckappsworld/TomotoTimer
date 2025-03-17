@@ -20,6 +20,12 @@ body {
   height: 100%;
   overflow-x: hidden;
   transition: background-color var(--transition-speed);
+
+  background-image: url('background.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 html {
