@@ -26,6 +26,8 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  /* 移除原本的背景色設置 */
+  background-color: transparent;
 }
 
 html {
