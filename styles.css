@@ -37,21 +37,34 @@ html {
 
 .control-panel {
   margin: 20px auto;
-  background: linear-gradient(135deg, var(--bg-light), var(--bg-gradient-1));
+  background: rgba(255, 255, 255, 0.15);  /* 半透明背景 */
+  backdrop-filter: blur(12px);            /* 背景模糊效果 */
+  -webkit-backdrop-filter: blur(12px);    /* Safari 支持 */
   padding: 25px;
   border-radius: var(--border-radius);
   width: 90%;
   max-width: 500px;
   box-shadow: 
-    0 10px 20px rgba(0,0,0,0.05),
-    0 6px 6px rgba(0,0,0,0.1),
-    0 0 0 1px rgba(255,255,255,0.8) inset;
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    0 6px 6px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
   position: relative;
   box-sizing: border-box;
-  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  transition: transform 0.3s, box-shadow 0.3s;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+/* 添加懸停效果 */
+.control-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.15),
+    0 10px 10px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+/* 添加光澤效果 */
 .control-panel::before {
   content: "";
   position: absolute;
@@ -61,6 +74,19 @@ html {
   height: 4px;
   background: linear-gradient(90deg, var(--primary-light), var(--primary-color), var(--primary-dark));
   border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+/* 調整玻璃效果邊緣 */
+.control-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  z-index: -1;
+  border-radius: var(--border-radius);
 }
 
 .input-group {
@@ -73,6 +99,7 @@ html {
   font-weight: 500;
   color: var(--text-primary);
   font-size: 0.95rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .segment-row {
@@ -89,21 +116,26 @@ html {
   color: var(--text-primary);
 }
 
+/* 調整輸入框樣式以配合玻璃效果 */
 .segment-input {
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
   border-radius: 8px;
   font-size: 1rem;
   transition: all var(--transition-speed);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-  background-color: rgba(255,255,255,0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .segment-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(76,175,80,0.2);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .unit-label {
@@ -160,17 +192,18 @@ html {
   font-weight: bold;
   font-size: 1rem;
   letter-spacing: 0.5px;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 #startBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
-
 #startBtn:active {
   transform: translateY(1px);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -196,14 +229,14 @@ html {
   text-align: center;
   margin-top: 25px;
   padding: 20px;
-  background: rgba(249, 249, 249, 0.7);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 
-    0 4px 6px rgba(0,0,0,0.05),
-    0 1px 3px rgba(0,0,0,0.1),
-    0 0 0 1px rgba(255,255,255,0.5) inset;
+    0 4px 6px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all var(--transition-speed);
 }
 
