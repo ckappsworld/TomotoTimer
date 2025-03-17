@@ -17,6 +17,13 @@ function initBatteryMonitor() {
 
 function checkBatteryStatus(battery) {
     const batteryLevel = battery.level;
+    const isCharging = battery.charging;
+    
+    // 如果正在充電，不需要節省電量
+    if (isCharging) {
+        enableFullGraphics();
+        return;
+    }
     
     // 如果電量低於20%，禁用3D背景
     if (batteryLevel < 0.2 && is3DBackgroundEnabled) {
