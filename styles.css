@@ -11,35 +11,38 @@
   --transition-speed: 0.3s;
 }
 
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: var(--bg-gradient-2);
-  color: var(--text-primary);
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  transition: background-color var(--transition-speed);
-
-  background-image: url('background.jpg');
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  /* 移除原本的背景色設置 */
-  background-color: transparent;
-}
-
 html {
   width: 100%;
   height: 100%;
 }
 
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-image: url('background.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  transition: background-color var(--transition-speed);
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
 .control-panel {
   margin: 20px auto;
-  background: rgba(255, 255, 255, 0.15);  /* 半透明背景 */
-  backdrop-filter: blur(12px);            /* 背景模糊效果 */
-  -webkit-backdrop-filter: blur(12px);    /* Safari 支持 */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 25px;
   border-radius: var(--border-radius);
   width: 90%;
@@ -55,7 +58,6 @@ html {
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* 添加懸停效果 */
 .control-panel:hover {
   transform: translateY(-5px);
   box-shadow: 
@@ -64,7 +66,6 @@ html {
     0 0 0 1px rgba(255, 255, 255, 0.3) inset;
 }
 
-/* 添加光澤效果 */
 .control-panel::before {
   content: "";
   position: absolute;
@@ -76,7 +77,6 @@ html {
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
-/* 調整玻璃效果邊緣 */
 .control-panel::after {
   content: "";
   position: absolute;
@@ -87,6 +87,25 @@ html {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
   z-index: -1;
   border-radius: var(--border-radius);
+}
+
+.external-url {
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all var(--transition-speed);
+  display: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  background-color: rgba(255,255,255,0.8);
+}
+
+.external-url:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76,175,80,0.2);
 }
 
 .input-group {
@@ -102,21 +121,6 @@ html {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.segment-row {
-  display: flex;
-  gap: 10px;
-  margin: 10px 0;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.segment-label {
-  min-width: 60px;
-  font-weight: bold;
-  color: var(--text-primary);
-}
-
-/* 調整輸入框樣式以配合玻璃效果 */
 .segment-input {
   flex: 1;
   padding: 12px 16px;
@@ -138,10 +142,18 @@ html {
   background: rgba(255, 255, 255, 0.15);
 }
 
-.unit-label {
-  margin-left: 5px;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+.segment-label {
+  min-width: 60px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.segment-row {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .sound-select {
@@ -161,23 +173,24 @@ html {
   box-shadow: 0 0 0 3px rgba(76,175,80,0.2);
 }
 
-.external-url {
-  width: 100%;
-  padding: 12px 16px;
-  margin-top: 8px;
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all var(--transition-speed);
-  display: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-  background-color: rgba(255,255,255,0.8);
+#countdown {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 5px 0;
+  background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.15s, opacity 0.15s;
 }
 
-.external-url:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(76,175,80,0.2);
+#currentPhase {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
 #startBtn {
@@ -204,6 +217,7 @@ html {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
+
 #startBtn:active {
   transform: translateY(1px);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -240,24 +254,10 @@ html {
   transition: all var(--transition-speed);
 }
 
-#currentPhase {
-  font-size: 1.1rem;
-  font-weight: 500;
+.unit-label {
+  margin-left: 5px;
   color: var(--text-secondary);
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-}
-
-#countdown {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 5px 0;
-  background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0px 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.15s, opacity 0.15s;
+  font-size: 0.9rem;
 }
 
 #videoContainer {
@@ -277,13 +277,6 @@ iframe {
   width: 100%;
   height: 100%;
   border: none;
-}
-
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
 }
 
 /* 手機裝置的響應式設計 */
@@ -322,41 +315,5 @@ canvas {
     border-radius: 0;
     position: relative;
     z-index: 1;
-  }
-}
-
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color: #66bb6a;
-    --primary-light: #98ee99;
-    --primary-dark: #338a3e;
-    --bg-light: #222;
-    --bg-gradient-1: #2d2d2d;
-    --bg-gradient-2: #1a1a1a;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-  }
-  
-  .control-panel {
-    background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-light));
-    box-shadow: 
-      0 10px 20px rgba(0,0,0,0.2),
-      0 6px 6px rgba(0,0,0,0.25),
-      0 0 0 1px rgba(255,255,255,0.1) inset;
-  }
-  
-  .segment-input, .sound-select, .external-url {
-    background-color: rgba(30,30,30,0.8);
-    border-color: rgba(255,255,255,0.1);
-    color: var(--text-primary);
-  }
-  
-  .timer-display {
-    background: rgba(30, 30, 30, 0.7);
-  }
-  
-  #videoContainer {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   }
 }
