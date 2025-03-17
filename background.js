@@ -1,3 +1,51 @@
+let is3DBackgroundEnabled = true;
+
+// 在適當的初始化函數中添加
+function initBatteryMonitor() {
+    if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+            // 初始檢查
+            checkBatteryStatus(battery);
+            
+            // 監聽電量變化
+            battery.addEventListener('levelchange', () => {
+                checkBatteryStatus(battery);
+            });
+        });
+    }
+}
+
+function checkBatteryStatus(battery) {
+    const batteryLevel = battery.level;
+    const isCharging = battery.charging;
+    
+    // 如果正在充電，不需要節省電量
+    if (isCharging) {
+        enableFullGraphics();
+        return;
+    }
+    
+    // 如果電量低於20%，禁用3D背景
+    if (batteryLevel < 0.2 && is3DBackgroundEnabled) {
+        is3DBackgroundEnabled = false;
+        const canvas = document.querySelector('canvas');
+        if (canvas) {
+            canvas.style.display = 'none';
+        }
+    } 
+    // 如果電量恢復到25%以上，重新啟用3D背景
+    else if (batteryLevel >= 0.25 && !is3DBackgroundEnabled) {
+        is3DBackgroundEnabled = true;
+        const canvas = document.querySelector('canvas');
+        if (canvas) {
+            canvas.style.display = 'block';
+        }
+    }
+}
+
+// 在頁面加載時初始化
+document.addEventListener('DOMContentLoaded', initBatteryMonitor);
+
 function init3DBackground() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
