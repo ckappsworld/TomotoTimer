@@ -40,7 +40,7 @@ canvas {
 
 .control-panel {
   margin: 20px auto;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 25px;
