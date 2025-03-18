@@ -195,7 +195,7 @@ class Timer {
     const seconds = (this.remaining % 60).toString().padStart(2, '0');
     document.getElementById('countdown').textContent = `${minutes}:${seconds}`;
     
-    const [phaseText, separator] = I18N.getText('phase');
+    const [phaseText, separator] = i18n[lang].phase;
     document.getElementById('currentPhase').textContent = 
       lang === 'zh-TW' ?
       `${phaseText} ${this.currentPhase + 1}${separator}${this.phases.length}` :
@@ -214,8 +214,8 @@ function generateSegments(count) {
     const label = document.createElement('span');
     label.className = 'segment-label';
     label.textContent = lang === 'zh-TW' ? 
-      `${I18N.getText('segment')}${i+1}段` : 
-      `${I18N.getText('segment')} ${i+1}`;
+      `${i18n[lang].segment}${i+1}段` : 
+      `${i18n[lang].segment} ${i+1}`;
 
     const input = document.createElement('input');
     input.type = 'number';
@@ -254,7 +254,7 @@ function generateSegments(count) {
     const urlInput = document.createElement('input');
     urlInput.type = 'text';
     urlInput.className = 'external-url';
-    urlInput.placeholder = I18N.getText('enterUrl');
+    urlInput.placeholder = i18n[lang].enterUrl;
     urlInput.style.display = 'none';
     
     select.addEventListener('change', function() {
@@ -359,36 +359,3 @@ document.addEventListener('DOMContentLoaded', function() {
   // 針對手機旋轉
   window.addEventListener('orientationchange', setVH);
 });
-
-// 动态更新内容
-function updateContent() {
-  document.querySelector('[data-i18n="pageTitle"]').textContent = I18N.getText('pageTitle');
-  document.querySelector('[data-i18n="subtitle"]').textContent = I18N.getText('subtitle');
-  document.querySelector('[data-i18n="description"]').textContent = I18N.getText('description');
-  
-  const featuresList = document.getElementById('featuresList');
-  featuresList.innerHTML = I18N.getText('features').map(f => 
-    `<li>${f}</li>`
-  ).join('');
-}
-
-// 语言切换事件
-document.getElementById('languageSelect').addEventListener('change', (e) => {
-  I18N.changeLanguage(e.target.value);
-});
-
-// 初始化语言选择器
-document.addEventListener('DOMContentLoaded', () => {
-  const selector = document.getElementById('languageSelect');
-  Object.entries(I18N.getSupportedLanguages()).forEach(([code, name]) => {
-    const option = document.createElement('option');
-    option.value = code;
-    option.textContent = name;
-    option.selected = code === I18N.getCurrentLanguage();
-    selector.appendChild(option);
-  });
-});
-
-// 监听语言变化事件
-document.addEventListener('languageChanged', updateContent);
-updateContent(); // 初始加载
