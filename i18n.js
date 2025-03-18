@@ -1,3 +1,75 @@
+// 定義 10 種最熱門語言的標籤翻譯
+const translations = {
+  // 英文 (English)
+  'en': {
+    'totalTimeLabel': 'Total Time (Min)',
+    'segmentsLabel': 'Segments'
+  },
+  // 中文 (Chinese)
+  'zh': {
+    'totalTimeLabel': '總時間（分鐘）',
+    'segmentsLabel': '分段數'
+  },
+  // 西班牙語 (Spanish)
+  'es': {
+    'totalTimeLabel': 'Tiempo Total (Min)',
+    'segmentsLabel': 'Segmentos'
+  },
+  // 印地語 (Hindi)
+  'hi': {
+    'totalTimeLabel': 'कुल समय (मिनट)',
+    'segmentsLabel': 'खंड'
+  },
+  // 阿拉伯語 (Arabic)
+  'ar': {
+    'totalTimeLabel': 'الوقت الإجمالي (دقيقة)',
+    'segmentsLabel': 'الشرائح'
+  },
+  // 葡萄牙語 (Portuguese)
+  'pt': {
+    'totalTimeLabel': 'Tempo Total (Min)',
+    'segmentsLabel': 'Segmentos'
+  },
+  // 俄語 (Russian)
+  'ru': {
+    'totalTimeLabel': 'Общее Время (Мин)',
+    'segmentsLabel': 'Сегменты'
+  },
+  // 日語 (Japanese)
+  'ja': {
+    'totalTimeLabel': '合計時間（分）',
+    'segmentsLabel': 'セグメント'
+  },
+  // 法語 (French)
+  'fr': {
+    'totalTimeLabel': 'Temps Total (Min)',
+    'segmentsLabel': 'Segments'
+  },
+  // 德語 (German)
+  'de': {
+    'totalTimeLabel': 'Gesamtzeit (Min)',
+    'segmentsLabel': 'Segmente'
+  }
+};
+
+// 獲取瀏覽器語言並設置為 2 字符語言代碼
+function getBrowserLanguage() {
+  const fullLang = navigator.language || navigator.userLanguage || 'en';
+  const langCode = fullLang.split('-')[0]; // 取得主語言代碼 (例如 zh-TW -> zh)
+  return langCode;
+}
+
+// 更新標籤為相應語言
+function updateLabels() {
+  const langCode = getBrowserLanguage();
+  const translationSet = translations[langCode] || translations['en']; // 如果找不到對應語言，使用英文作為默認值
+  
+  document.getElementById('totalTimeLabel').textContent = translationSet.totalTimeLabel;
+  document.getElementById('segmentsLabel').textContent = translationSet.segmentsLabel;
+}
+
+// 當頁面載入完成後執行更新
+document.addEventListener('DOMContentLoaded', updateLabels);
 /**
  * 多语言支持模块
  * 支持动态切换语言和自动检测浏览器语言
