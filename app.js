@@ -10,10 +10,92 @@ const i18n = {
     unit: '分鐘',
     phase: ['階段', '/'],
     enterUrl: '輸入連結...'
+  },
+  'zh-CN': {
+    segment: '第',
+    unit: '分钟',
+    phase: ['阶段', '/'],
+    enterUrl: '输入链接...'
+  },
+  'es': {
+    segment: 'Segmento',
+    unit: 'min',
+    phase: ['Fase', 'de'],
+    enterUrl: 'Introduzca URL...'
+  },
+  'hi': {
+    segment: 'खंड',
+    unit: 'मिनट',
+    phase: ['चरण', 'का'],
+    enterUrl: 'URL दर्ज करें...'
+  },
+  'fr': {
+    segment: 'Segment',
+    unit: 'min',
+    phase: ['Phase', 'de'],
+    enterUrl: 'Entrez URL...'
+  },
+  'ar': {
+    segment: 'جزء',
+    unit: 'دقيقة',
+    phase: ['مرحلة', 'من'],
+    enterUrl: 'أدخل الرابط...'
+  },
+  'ru': {
+    segment: 'Сегмент',
+    unit: 'мин',
+    phase: ['Фаза', 'из'],
+    enterUrl: 'Введите URL...'
+  },
+  'pt': {
+    segment: 'Segmento',
+    unit: 'min',
+    phase: ['Fase', 'de'],
+    enterUrl: 'Insira URL...'
+  },
+  'ja': {
+    segment: 'セグメント',
+    unit: '分',
+    phase: ['フェーズ', 'の'],
+    enterUrl: 'URLを入力...'
+  },
+  'de': {
+    segment: 'Segment',
+    unit: 'Min',
+    phase: ['Phase', 'von'],
+    enterUrl: 'URL eingeben...'
   }
 };
 
-const getLanguage = () => navigator.language.startsWith('zh') ? 'zh-TW' : 'en';
+// Enhanced language detection function
+const getLanguage = () => {
+  const browserLang = navigator.language.toLowerCase();
+  
+  // Handle Chinese variants
+  if (browserLang.startsWith('zh')) {
+    return browserLang.includes('tw') || browserLang.includes('hk') ? 'zh-TW' : 'zh-CN';
+  }
+  
+  // For other languages, match by prefix
+  const langPrefix = browserLang.split('-')[0];
+  const availableLangs = Object.keys(i18n);
+  
+  // Return exact match if available
+  if (availableLangs.includes(browserLang)) {
+    return browserLang;
+  }
+  
+  // Return language by prefix match
+  for (const lang of availableLangs) {
+    if (lang.startsWith(langPrefix)) {
+      return lang;
+    }
+  }
+  
+  // Default to English if no match found
+  return 'en';
+};
+
 const lang = getLanguage();
 
 const mediaManager = {
