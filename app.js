@@ -344,6 +344,13 @@ if (isMobileDevice()) {
   };
 }
 document.addEventListener('DOMContentLoaded', function() {
+  // 初始化多语言支持
+  initializeLanguage();
+  
+  // 监听语言变化事件
+  document.addEventListener('languageChanged', function(e) {
+    updateControlPanelLanguage();
+  });
   // 計算實際的視窗高度，解決手機瀏覽器地址欄問題
   function setVH() {
     let vh = window.innerHeight * 0.01;
@@ -358,4 +365,81 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 針對手機旋轉
   window.addEventListener('orientationchange', setVH);
+});
+// 初始化多语言支持
+function initializeLanguage() {
+  // 填充语言选择器
+  const languageSelect = document.getElementById('languageSelect');
+  const supportedLanguages = window.I18N.getSupportedLanguages();
+  
+  for (const [code, name] of Object.entries(supportedLanguages)) {
+    const option = document.createElement('option');
+    option.value = code;
+    option.textContent = name;
+    languageSelect.appendChild(option);
+  }
+  
+  // 设置当前语言
+  languageSelect.value = window.I18N.getCurrentLanguage();
+  
+  // 添加语言变化监听器
+  languageSelect.addEventListener('change', function() {
+    window.I18N.changeLanguage(this.value);
+  });
+  
+  // 初始更新control-panel语言
+  updateControlPanelLanguage();
+}
+
+// 只更新control-panel元素的语言
+function updateControlPanelLanguage() {
+  // 更新控制面板文本
+  document.getElementById('totalTimeLabel').textContent = window.I18N.getText('totalTime');
+  document.getElementById('segmentsLabel').textContent = window.I18N.getText('segments');
+  document.getElementById('startBtn').textContent = window.I18N.getText('start');
+  document.getElementById('currentPhase').textContent = window.I18N.getText('ready');
+  
+  // 更新分段输入标签
+  updateSegmentInputs();
+  
+  // 如果control-panel中有其他需要更新的元素，继续添加...
+}
+
+// 更新分段输入区域
+function updateSegmentInputs() {
+  const segmentInputs = document.getElementById('segmentInputs');
+  const segmentCount = parseInt(document.getElementById('segmentCount').value);
+  
+  // 清空现有内容
+  segmentInputs.innerHTML = '';
+  
+  // 创建新的分段输入
+  for (let i = 0; i < segmentCount; i++) {
+    const div = document.createElement('div');
+    div.className = 'segment-row';
+    
+    const label = document.createElement('label');
+    label.textContent = `${window.I18N.getText('segment')} ${i + 1} ${window.I18N.getText('phase')[0]} ${i + 1} ${window.I18N.getText('phase')[1]} ${segmentCount}`;
+    
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'segment-input';
+    input.min = '1';
+    input.value = '25';
+    input.id = `segment${i}`;
+    
+    const span = document.createElement('span');
+    span.textContent = window.I18N.getText('minute');
+    
+    div.appendChild(label);
+    div.appendChild(input);
+    div.appendChild(span);
+    
+    segmentInputs.appendChild(div);
+  }
+}
+
+// 当分段数量变化时更新UI
+document.getElementById('segmentCount').addEventListener('change', function() {
+  updateSegmentInputs();
 });
