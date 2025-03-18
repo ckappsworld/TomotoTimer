@@ -1,4 +1,22 @@
 
+const i18n = {
+  'en': {
+    segment: 'Segment',
+    unit: 'min',
+    phase: ['Phase', 'of'],
+    enterUrl: 'Enter URL...'
+  },
+  'zh-TW': {
+    segment: '第',
+    unit: '分鐘',
+    phase: ['階段', '/'],
+    enterUrl: '輸入連結...'
+  }
+};
+
+const getLanguage = () => navigator.language.startsWith('zh') ? 'zh-TW' : 'en';
+const lang = getLanguage();
+
 const mediaManager = {
   currentMedia: null,
   currentType: null,
