@@ -1,21 +1,3 @@
-const i18n = {
-  'en': {
-    segment: 'Segment',
-    unit: 'min',
-    phase: ['Phase', 'of'],
-    enterUrl: 'Enter URL...'
-  },
-  'zh-TW': {
-    segment: '第',
-    unit: '分鐘',
-    phase: ['階段', '/'],
-    enterUrl: '輸入連結...'
-  }
-};
-
-const getLanguage = () => navigator.language.startsWith('zh') ? 'zh-TW' : 'en';
-const lang = getLanguage();
-
 const mediaManager = {
   currentMedia: null,
   currentType: null,
@@ -213,7 +195,7 @@ class Timer {
     const seconds = (this.remaining % 60).toString().padStart(2, '0');
     document.getElementById('countdown').textContent = `${minutes}:${seconds}`;
     
-    const [phaseText, separator] = i18n[lang].phase;
+    const [phaseText, separator] = I18N.getText('phase');
     document.getElementById('currentPhase').textContent = 
       lang === 'zh-TW' ?
       `${phaseText} ${this.currentPhase + 1}${separator}${this.phases.length}` :
@@ -232,8 +214,8 @@ function generateSegments(count) {
     const label = document.createElement('span');
     label.className = 'segment-label';
     label.textContent = lang === 'zh-TW' ? 
-      `${i18n[lang].segment}${i+1}段` : 
-      `${i18n[lang].segment} ${i+1}`;
+      `${I18N.getText('segment')}${i+1}段` : 
+      `${I18N.getText('segment')} ${i+1}`;
 
     const input = document.createElement('input');
     input.type = 'number';
@@ -272,7 +254,7 @@ function generateSegments(count) {
     const urlInput = document.createElement('input');
     urlInput.type = 'text';
     urlInput.className = 'external-url';
-    urlInput.placeholder = i18n[lang].enterUrl;
+    urlInput.placeholder = I18N.getText('enterUrl');
     urlInput.style.display = 'none';
     
     select.addEventListener('change', function() {
