@@ -1,4 +1,3 @@
-
 const i18n = {
   'en': {
     segment: 'Segment',
