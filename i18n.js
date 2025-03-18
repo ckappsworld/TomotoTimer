@@ -3,52 +3,52 @@ const translations = {
   // 英文 (English)
   'en': {
     'totalTimeLabel': 'Total Time (Min)',
-    'segmentsLabel': 'Segments'
+    'segmentsLabel': 'Total Segments'
   },
   // 中文 (Chinese)
   'zh': {
     'totalTimeLabel': '總時間（分鐘）',
-    'segmentsLabel': '分段數'
+    'segmentsLabel': '總共分段數'
   },
   // 西班牙語 (Spanish)
   'es': {
     'totalTimeLabel': 'Tiempo Total (Min)',
-    'segmentsLabel': 'Segmentos'
+    'segmentsLabel': 'Número Total de Segmentos'
   },
   // 印地語 (Hindi)
   'hi': {
     'totalTimeLabel': 'कुल समय (मिनट)',
-    'segmentsLabel': 'खंड'
+    'segmentsLabel': 'कुल खंडों की संख्या'
   },
   // 阿拉伯語 (Arabic)
   'ar': {
     'totalTimeLabel': 'الوقت الإجمالي (دقيقة)',
-    'segmentsLabel': 'الشرائح'
+    'segmentsLabel': 'إجمالي عدد الشرائح'
   },
   // 葡萄牙語 (Portuguese)
   'pt': {
     'totalTimeLabel': 'Tempo Total (Min)',
-    'segmentsLabel': 'Segmentos'
+    'segmentsLabel': 'Número Total de Segmentos'
   },
   // 俄語 (Russian)
   'ru': {
     'totalTimeLabel': 'Общее Время (Мин)',
-    'segmentsLabel': 'Сегменты'
+    'segmentsLabel': 'Общее Количество Сегментов'
   },
   // 日語 (Japanese)
   'ja': {
     'totalTimeLabel': '合計時間（分）',
-    'segmentsLabel': 'セグメント'
+    'segmentsLabel': 'セグメントの総数'
   },
   // 法語 (French)
   'fr': {
     'totalTimeLabel': 'Temps Total (Min)',
-    'segmentsLabel': 'Segments'
+    'segmentsLabel': 'Nombre Total de Segments'
   },
   // 德語 (German)
   'de': {
     'totalTimeLabel': 'Gesamtzeit (Min)',
-    'segmentsLabel': 'Segmente'
+    'segmentsLabel': 'Gesamtanzahl der Segmente'
   }
 };
 
