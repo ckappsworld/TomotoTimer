@@ -75,31 +75,37 @@
 
   <div id="videoContainer"></div>
   <!-- 在control-panel下方新增说明区块 -->
-  <!-- 替换原有语言链接 -->
-  <div class="lang-switch">
-    <select id="languageSelect">
-      <option value="en">English</option>
-      <option value="zh-TW">繁體中文</option>
-      <option value="zh-CN">简体中文</option>
-      <option value="ja">日本語</option>
-      <option value="es">Español</option>
-      <option value="fr">Français</option>
-      <option value="de">Deutsch</option>
-      <option value="ko">한국어</option>
-      <option value="it">Italiano</option>
-      <option value="pt">Português</option>
-    </select>
-  </div>
   <section class="content-section">
-    <h1 data-i18n="pageTitle"></h1>
+    <h1>Online Focus Timer for Deep Work Sessions</h1>
+    <div class="lang-switch">
+      <a href="/en/" hreflang="en">English</a> | 
+      <a href="/zh/" hreflang="zh-Hant">中文</a>
+    </div>
+    
     <article>
-      <h2 data-i18n="subtitle"></h2>
-      <p data-i18n="description"></p>
-      <ul id="featuresList"></ul>
+      <h2>Boost Productivity with Smart Time Management</h2>
+      <p>This free online focus timer helps you implement the Pomodoro Technique effectively. Key features:</p>
+      <ul>
+        <li>Custom work/break intervals</li>
+        <li>Background video integration (YouTube/Bilibili)</li>
+        <li>Natural sound effects for concentration</li>
+        <li>Multi-language support (English/中文)</li>
+      </ul>
+    </article>
+  
+    <!-- 中文内容区块 -->
+    <article lang="zh-Hant">
+      <h2>高效時間管理工具</h2>
+      <p>免費線上專注計時器主要功能：</p>
+      <ul>
+        <li>自定義工作/休息時間</li>
+        <li>YouTube/Bilibili背景影片整合</li>
+        <li>提升專注力的自然音效</li>
+        <li>支援英文/繁體中文介面</li>
+      </ul>
     </article>
   </section>
 
-  <script src="i18n.js"></script>
   <script src="background.js"></script>
   <script src="app.js"></script>
 </body>
