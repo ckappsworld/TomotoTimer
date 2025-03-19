@@ -114,7 +114,7 @@ const mediaManager = {
     waterstream: new Howl({ src: ['sounds/water-stream01.mp3'], loop: true }),
     waterflow: new Howl({ src: ['sounds/water-flow01.mp3'], loop: true }),
     wavealpha: new Howl({ src: ['sounds/waves-alpha01.mp3'], loop: true }),
-    wavebeta: new Howl({ src: ['sounds/waves beta01.mp3'], loop: true }),
+    wavebeta: new Howl({ src: ['sounds/waves-beta01.mp3'], loop: true }),
     none: { play: () => {}, stop: () => {} }
   },
   
