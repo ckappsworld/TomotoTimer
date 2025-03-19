@@ -115,6 +115,7 @@ const mediaManager = {
     waterflow: new Howl({ src: ['sounds/water-flow01.mp3'], loop: true }),
     wavealpha: new Howl({ src: ['sounds/waves-alpha01.mp3'], loop: true }),
     wavebeta: new Howl({ src: ['sounds/waves-beta01.mp3'], loop: true }),
+    wavegamma: new Howl({ src: ['sounds/waves-gamma01.mp3'], loop: true }),
     none: { play: () => {}, stop: () => {} }
   },
   
@@ -336,6 +337,7 @@ function generateSegments(count) {
       {value: 'bilibili', text: 'BiliBili'},
       {value: 'wavealpha', text: 'Alpha Waves'},
       {value: 'wavebeta', text: 'Beta Waves'},
+      {value: 'wavegamma', text: 'Gamma Waves'},
       {value: 'birds', text: 'Birds'},
       {value: 'lightrain', text: 'Rain'},
       {value: 'oceanwave', text: 'Ocean Waves'},
