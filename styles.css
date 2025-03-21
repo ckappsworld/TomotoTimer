@@ -19,7 +19,7 @@ html {
 body {
   margin: 0;
   font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-image: url('background.jpg');
+  background-image: url('images/background.jpg');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
