@@ -215,17 +215,15 @@
 
   <script>// Close button
     document.addEventListener('DOMContentLoaded', function() {
-      // Check if donation link was previously closed
-      if (localStorage.getItem('donateHidden') === 'true') {
-        document.getElementById('donate-container').style.display = 'none';
-      }
+      // No need to check localStorage anymore
+      // Always show the donation link by default
+      document.getElementById('donate-container').style.display = 'block';
       
-      // Add close button functionality
+      // Add close button functionality - only hides for current session
       document.getElementById('close-donate').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('donate-container').style.display = 'none';
-        // Save preference to localStorage
-        localStorage.setItem('donateHidden', 'true');
+        // Don't save to localStorage anymore
       });
     });
   </script>
