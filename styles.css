@@ -145,7 +145,7 @@ canvas {
 #donate-container {
   position: fixed;
   bottom: 5px;
-  right: 25%;
+  right: 18%;
   z-index: 100;
   transition: all 0.3s ease;
   border-radius: 8px;
