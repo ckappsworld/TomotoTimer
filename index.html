@@ -213,6 +213,22 @@
     </a>
   </div>
 
+  <script>// Close button
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if donation link was previously closed
+      if (localStorage.getItem('donateHidden') === 'true') {
+        document.getElementById('donate-container').style.display = 'none';
+      }
+      
+      // Add close button functionality
+      document.getElementById('close-donate').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('donate-container').style.display = 'none';
+        // Save preference to localStorage
+        localStorage.setItem('donateHidden', 'true');
+      });
+    });
+  </script>
   <script src="background.js"></script>
   <script src="app.js"></script>
   <script src="i18n.js"></script>
