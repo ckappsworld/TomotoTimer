@@ -206,24 +206,33 @@
         
   </section>
 
-  <div id="donate-container">
+  <div id="donate-container" class="donate-panel">
     <button id="close-donate" aria-label="Close donation button">×</button>
-    <a href="https://www.paypal.com/donate/?hosted_button_id=54LNEQZMVP8PQ" target="_blank" rel="noopener">
+    <div class="donate-content">
+      <button id="donate-button">Donate</button>
       <img src="images/donate-link.png" alt="Support this project" id="donate-img">
-    </a>
+    </div>
+    <a href="https://www.paypal.com/donate/?hosted_button_id=54LNEQZMVP8PQ" target="_blank" rel="noopener" class="donate-link"></a>
   </div>
 
   <script>// Close button
+    // Replace the existing donation script
     document.addEventListener('DOMContentLoaded', function() {
-      // No need to check localStorage anymore
       // Always show the donation link by default
       document.getElementById('donate-container').style.display = 'block';
       
       // Add close button functionality - only hides for current session
       document.getElementById('close-donate').addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation(); // Prevent the click from propagating to the container
         document.getElementById('donate-container').style.display = 'none';
-        // Don't save to localStorage anymore
+      });
+      
+      // Add click functionality to the donate button
+      document.getElementById('donate-button').addEventListener('click', function(e) {
+        // This is just for visual feedback, the actual link is handled by the wrapping anchor
+        e.preventDefault();
+        window.open('https://www.paypal.com/donate/?hosted_button_id=54LNEQZMVP8PQ', '_blank');
       });
     });
   </script>
