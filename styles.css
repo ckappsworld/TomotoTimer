@@ -150,7 +150,7 @@ canvas {
   transition: all 0.3s ease;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  max-width: 150px;
+  max-width: 120px;
 }
 
 #donate-img {
@@ -190,7 +190,7 @@ canvas {
 /* Hide donation button on small screens */
 @media screen and (max-width: 768px) {
   #donate-container {
-    display: none;
+    display: none !important;
   }
 }
 
