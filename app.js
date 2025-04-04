@@ -332,10 +332,10 @@ function generateSegments(count) {
     select.className = 'sound-select';
     
     const builtInOptions = [
+      {value: 'wavealpha', text: 'Alpha Waves'},
+      {value: 'none', text: 'Mute'},
       {value: 'youtube', text: 'YouTube'},
       {value: 'bilibili', text: 'BiliBili'},
-      {value: 'none', text: 'Mute'},
-      {value: 'wavealpha', text: 'Alpha Waves'},
       {value: 'wavebeta', text: 'Beta Waves'},
       {value: 'wavegamma', text: 'Gamma Waves'},
       {value: 'birds', text: 'Birds'},
