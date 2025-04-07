@@ -154,7 +154,7 @@ canvas {
 .donate-panel {
   position: fixed;
   bottom: 5px;
-  left: 68%;
+  left: 70%;
   z-index: 100;
   background: rgba(255, 255, 255, 0.35);
   backdrop-filter: blur(12px);
