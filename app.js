@@ -334,8 +334,8 @@ function generateSegments(count) {
     const builtInOptions = [
       {value: 'none', text: 'Select a Background sound...'},
       {value: 'none', text: 'Mute'},
-      {value: 'youtube', text: 'YouTube link'},
-      {value: 'bilibili', text: 'BiliBili link'},
+      {value: 'youtube', text: 'YouTube Link'},
+      {value: 'bilibili', text: 'BiliBili Link'},
       {value: 'wavealpha', text: 'Alpha Waves'},
       {value: 'wavebeta', text: 'Beta Waves'},
       {value: 'wavegamma', text: 'Gamma Waves'},
