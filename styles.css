@@ -348,6 +348,10 @@ canvas {
   color: var(--primary-light);
 }
 
+p {
+  text-align: justify;
+}
+
 /* How to Use Steps */
 .steps {
   margin: 20px 0;
