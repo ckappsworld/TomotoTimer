@@ -348,7 +348,7 @@ canvas {
   color: var(--primary-light);
 }
 
-p {
+p:not(.no-justify) {
   text-align: justify;
 }
 
